@@ -1,9 +1,13 @@
+#include <cstddef>
 #include <iostream>
+#include <sys/poll.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <cstring>
-
+#include <fcntl.h>
+#include <vector>
+#include <poll.h>
 
 
 int main(void)
@@ -14,6 +18,7 @@ int main(void)
         std::cerr << "Error: failed to create socket" << std::endl;
         return 1;
     }
+    fcntl(server_fd, F_SETFL, O_NONBLOCK);
     struct sockaddr_in address;
     std::memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
@@ -31,23 +36,18 @@ int main(void)
         return 1;
     }
     std::cout << "success: the server is listening to the port 6667." << std::endl;
+    std::vector<struct pollfd> fds;
 
-    struct sockaddr_in client_address;
-    socklen_t client_len = sizeof(client_address);
-
-    std::cout << "waiting for a client to connect..." << std::endl;
-
-    int client_fd = accept(server_fd, (struct sockaddr *)&client_address, &client_len);
-    if(client_fd == -1)
+    struct pollfd server_pollfd;
+    server_pollfd.fd = server_fd;
+    server_pollfd.events = POLLIN;
+    server_pollfd.revents = 0;
+    fds.push_back(server_pollfd);
+    size_t loop_count = 0;
+    while(true)
     {
-        std::cerr << "Error: failed to accept connection." << std::endl;
-        close(server_fd);
-        return 1;
+        struct sockaddr_in client_address;
     }
-    std::cout << "A client connected! the OS gave them socket (pipe) ID: " << client_fd << std::endl;
-    std::string greeting = "welcome to 1337 IRC server!\n";
-    send(client_fd, greeting.c_str(), greeting.length(), 0);
-    close(client_fd);
     close(server_fd);
     return 0;
 }
