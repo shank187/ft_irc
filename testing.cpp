@@ -19,11 +19,11 @@ int main(void)
         return 1;
     }
     fcntl(server_fd, F_SETFL, O_NONBLOCK);
-    struct sockaddr_in address;
-    std::memset(&address, 0, sizeof(address));
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(6667);
+    struct sockaddr_in address; // nbdaw address configuration
+    std::memset(&address, 0, sizeof(address)); //cleaning the garbage values
+    address.sin_family = AF_INET; // ipv4, we are using internet protocls, not bluethoot or local Unix pipes
+    address.sin_addr.s_addr = INADDR_ANY;//tells the server to listen to all available netw0rk interfaces
+    address.sin_port = htons(6667);//
 
     if(bind(server_fd, (struct sockaddr *)&address, sizeof(address)) ==  -1)
     {
@@ -43,10 +43,16 @@ int main(void)
     server_pollfd.events = POLLIN;
     server_pollfd.revents = 0;
     fds.push_back(server_pollfd);
-    size_t loop_count = 0;
+
     while(true)
     {
-        struct sockaddr_in client_address;
+        int poll_count = poll(&fds[0], fds.size(), -1);
+        if(poll_count == -1)
+        {
+            std::cerr << "poll error!" << std::endl;
+            break;
+        }
+        std::cout << "someone woke the server up" << std::endl;
     }
     close(server_fd);
     return 0;
