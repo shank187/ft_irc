@@ -23,7 +23,7 @@ int main(void)
     std::memset(&address, 0, sizeof(address)); //cleaning the garbage values
     address.sin_family = AF_INET; // ipv4, we are using internet protocls, not bluethoot or local Unix pipes
     address.sin_addr.s_addr = INADDR_ANY;//tells the server to listen to all available netw0rk interfaces
-    address.sin_port = htons(6667);//
+    address.sin_port = htons(6667);// (host to network short) tranlslate the specific port number into universal "network byte order"
 
     if(bind(server_fd, (struct sockaddr *)&address, sizeof(address)) ==  -1)
     {
@@ -36,11 +36,11 @@ int main(void)
         return 1;
     }
     std::cout << "success: the server is listening to the port 6667." << std::endl;
-    std::vector<struct pollfd> fds;
+    std::vector<struct pollfd> fds;// create a dynamically sizing list to hold pollfd structs.
 
-    struct pollfd server_pollfd;
-    server_pollfd.fd = server_fd;
-    server_pollfd.events = POLLIN;
+    struct pollfd server_pollfd;// the specific struct the os require to monitor socket
+    server_pollfd.fd = server_fd;// passing our main server door to it
+    server_pollfd.events = POLLIN; // 
     server_pollfd.revents = 0;
     fds.push_back(server_pollfd);
 
