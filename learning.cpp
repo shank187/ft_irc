@@ -110,15 +110,11 @@ int main(void)
                         size_t pos;
                         while((pos = client_buffer[fds[i].fd].find('\n')) != std::string::npos)
                         {
-                            
-                        }
-                        if(client_buffer[fds[i].fd].find('\n') != std::string::npos)
-                        {
-                            std::cout << "Client " << fds[i].fd << " says: " << client_buffer[fds[i].fd];
-                            
+                            std::string complete_command = client_buffer[fds[i].fd].substr(0, pos + 1);
+                            std::cout << "complete_command received: " << complete_command;
                             std::string reply = "Server heard you!\n";
                             send(fds[i].fd, reply.c_str(), reply.length(), 0);
-                            client_buffer[fds[i].fd].clear();
+                            client_buffer[fds[i].fd].erase(0, pos + 1);
                         }
                     }
                 }
