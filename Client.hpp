@@ -5,29 +5,37 @@
 
 class Client {
 private:
-    int         _fd;                // The socket file descriptor
-    std::string _buffer;            // The "pocket" for incomplete TCP packets
-    std::string _nickname;          // The user's chosen IRC name
-    std::string _username;          // The user's system name
-    bool        _isAuthenticated;   // Has the user sent the correct PASS?
-
+    int         fd;
+    std::string buffer;
+    std::string nickname;
+    std::string username;
+    bool        is_registered;
+    bool        is_auth;
 public:
-    Client(); // (Required so we can put it in a std::map)
-    Client(int fd);
+
+    Client();
+    Client(int client_fd);
+    Client(const Client& src);
+    Client& operator=(const Client& rhs);
     ~Client();
 
 
-    int         getFd() const;
-    std::string getBuffer() const;
-    std::string getNickname() const;
-    std::string getUsername() const;
-    bool        isAuthenticated() const;
+    int         get_fd() const;
+    std::string get_buffer() const;
+    std::string get_nickname() const;
+    std::string get_username() const;
+    bool        get_is_registered() const;
+    bool        get_is_auth() const;
 
-    void        appendBuffer(std::string const &data);
-    void        extractBuffer(size_t pos); // To slice off completed commands
-    void        setNickname(std::string const &nickname);
-    void        setUsername(std::string const &username);
-    void        setAuthenticated(bool status);
+    void        append_buffer(const std::string& data);
+    void        extract_buffer(size_t pos);
+
+    void        set_nickname(std::string nick);
+    void        set_username(std::string user);
+    void        set_auth(bool status);
+    
+    void        check_registration();
+    void        reply(std::string msg);
 };
 
 #endif

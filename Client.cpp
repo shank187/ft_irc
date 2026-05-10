@@ -1,36 +1,87 @@
 #include "Client.hpp"
+#include <iostream>
 
-Client::Client() : _fd(-1), _buffer(""), _nickname(""), _username(""), _isAuthenticated(false) {}
 
-Client::Client(int fd) : _fd(fd), _buffer(""), _nickname(""), _username(""), _isAuthenticated(false) {}
+Client::Client() : fd(-1), buffer(""), nickname(""), username(""), is_registered(false), is_auth(false) {}
+
+Client::Client(int client_fd) : fd(client_fd), buffer(""), nickname(""), username(""), is_registered(false), is_auth(false) {}
 
 Client::~Client() {}
 
-int Client::getFd() const { return _fd; }
-std::string Client::getBuffer() const { return _buffer; }
-std::string Client::getNickname() const { return _nickname; }
-std::string Client::getUsername() const { return _username; }
-bool Client::isAuthenticated() const { return _isAuthenticated; }
 
-
-// Glues incoming bytes to the end of the pocket
-void Client::appendBuffer(std::string const &data) { 
-    _buffer += data; 
+Client::Client(const Client& src) {
+    *this = src;
 }
 
-// Slices off the complete command from the pocket
-void Client::extractBuffer(size_t pos) { 
-    _buffer.erase(0, pos); 
+Client& Client::operator=(const Client& rhs)
+{
+    if (this != &rhs) {
+        this->fd = rhs.fd;
+        this->buffer = rhs.buffer;
+        this->nickname = rhs.nickname;
+        this->username = rhs.username;
+        this->is_registered = rhs.is_registered;
+        this->is_auth = rhs.is_auth;
+    }
+    return *this;
 }
 
-void Client::setNickname(std::string const &nickname) { 
-    _nickname = nickname; 
+
+int Client::get_fd() const {
+    return fd;
 }
 
-void Client::setUsername(std::string const &username) { 
-    _username = username; 
+std::string Client::get_buffer() const {
+    return buffer;
 }
 
-void Client::setAuthenticated(bool status) { 
-    _isAuthenticated = status; 
+std::string Client::get_nickname() const {
+    return nickname;
+}
+
+std::string Client::get_username() const {
+    return username;
+}
+
+bool Client::get_is_registered() const {
+    return is_registered;
+}
+
+bool Client::get_is_auth() const {
+    return is_auth;
+}
+
+
+void Client::append_buffer(const std::string& data) {
+    buffer += data;
+}
+
+void Client::extract_buffer(size_t pos) {
+    buffer.erase(0, pos);
+}
+
+
+void Client::set_auth(bool status) { 
+    is_auth = status; 
+}
+
+void Client::set_nickname(std::string nick) {
+    nickname = nick;
+    check_registration();
+}
+
+void Client::set_username(std::string user) {
+    username = user;
+    check_registration();
+}
+
+
+void Client::check_registration() {
+    if (!nickname.empty() && !username.empty())
+        is_registered = true;
+}
+
+void Client::reply(std::string msg) {
+    // exp: send(this->fd, msg.c_str(), msg.length(), 0);
+    std::cout << "[To FD " << fd << "] -> " << msg << std::endl;
 }
