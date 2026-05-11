@@ -39,7 +39,37 @@ void Server::init()
     _fds.push_back(server_pollfd);
 }
 
-void Server::_
+void Server::_acceptNewClient()
+{
+    struct sockaddr_in client_address;
+    socklen_t client_len = sizeof(client_address);
+
+    int client_fd = accept(_server_fd,
+        (struct sockaddr *) &client_address, &client_len);
+    if (client_fd != -1)
+    {
+        fcntl(client_fd, F_SETFL, O_NONBLOCK);
+        std::cout << GREEN << "A new client walked in! FD:" << RESET << client_fd << std::endl;
+        struct pollfd client_pollfd;
+        client_pollfd.fd = client_fd;
+        client_pollfd.events = POLLIN;
+        client_pollfd.revents = 0;
+        _fds.push_back(client_pollfd);
+        _clients[client_fd] = Client(client_fd);
+    }
+}
+
+void Server::_handleClientMessage(int fd, char *buffer)
+{
+    _clients[fd].append_buffer(buffer);
+    size_t pos;
+    while((pos = _clients[fd].get_buffer().find('\n')) != std::string::npos)
+    {
+        std::string complete_msg = _clients[fd].get_buffer().substr(0, pos+ 1);
+        std::cout << complete_msg << std::endl;
+        _clients[fd].extract_buffer(pos + 1);
+    }
+}
 
 void Server::run()
 {
@@ -48,13 +78,29 @@ void Server::run()
         int poll_count = poll(_fds.data(), _fds.size(), -1);
         if(-1 == poll_count)
             throw std::runtime_error("Poll error!");
-        for(int i = 0; i < _fds.size(); i++)
+        for(size_t i = 0; i < _fds.size(); i++)
         {
-            if(_fds[i].fd == _server_fd)
-                _acceptNewClient();
-            else
-                _handleClientMessage(_fds[i].fd);
+            if(_fds[i].revents & POLLIN)
+            {
+                if(_fds[i].fd == _server_fd)
+                    _acceptNewClient();
+                else
+                {
+                    char buffer[1024];
+                    std::memset(buffer, 0, sizeof(buffer));
+                    int byte_received = recv(_fds[i].fd, buffer, sizeof(buffer)-1, 0);
+                    if(byte_received <= 0)
+                    {
+                        std::cout << YELLOW <<"Client " <<_fds[i].fd << " disconnected." << std::endl;
+                        _clients.erase(_fds[i].fd);
+                        close(_fds[i].fd);
+                        _fds.erase(_fds.begin() + i);
+                        i--;
+                    }
+                    else
+                        _handleClientMessage(_fds[i].fd,  buffer);
+                }
+            }
         }
-
     }
 }

@@ -1,4 +1,4 @@
-#ifndef SERVER_HPP
+ #ifndef SERVER_HPP
 #define SERVER_HPP
 
 #include <vector>
@@ -27,11 +27,12 @@ private:
     int                         _server_fd;
     std::string                 _pw;
     std::vector<struct pollfd>  _fds;        // The dynamic list of buzzers
-    std::map<int, Client>       _clients;    // The database of connected users
+    std::map<int, Client>       _clients;   // The database of connected users
 
     // Private Helper Methods (To keep the main loop clean)
     void    _acceptNewClient();
-    void    _handleClientMessage(int fd);
+    void    _handleClientMessage(int fd, char *buffer);
+    void    _handleClientDisconnection(int fd);
 
 public:
     Server(int port);
