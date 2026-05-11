@@ -55,7 +55,20 @@ void Core::on_client_disconnect(int fd) {
     }
 }
 
+void Core::cmd_pass(Client *client, mssg& msg)
+{
 
+}
+
+void Core::cmd_user(Client *client, mssg& msg)
+{
+
+}
+
+void Core::cmd_nick(Client *client, mssg& msg)
+{
+
+}
 
 void Core::cmd_join(Client* client, mssg& msg) {
     if (msg.args.empty())

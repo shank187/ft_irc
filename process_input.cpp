@@ -66,15 +66,27 @@ void Core::process_input(int fd, std::string text)
 
     mssg parsed = parse_msg(text);
 
+    if(parsed.cmd == "PASS")
+        cmd_pass(client, parsed);
+    else if(parsed.cmd == "NICK")
+        cmd_nick(client, parsed);
+    else if(parsed.cmd == "USER")
+        cmd_user(client, parsed);
 
-    if (parsed.cmd == "JOIN")
-        cmd_join(client, parsed);
-    else if (parsed.cmd == "PRIVMSG")
-        cmd_privmsg(client, parsed);
-    else if (parsed.cmd == "PART")
-        cmd_part(client, parsed);
-    else if (parsed.cmd == "KICK")
-        cmd_kick(client, parsed);
-    else if (!parsed.cmd.empty())
-        client->reply("421 " + client->get_nickname() + " " + parsed.cmd + " :Unknown command\r\n");
+    if (client->get_is_auth()){
+        if (parsed.cmd == "JOIN")
+            cmd_join(client, parsed);
+        else if (parsed.cmd == "PRIVMSG")
+            cmd_privmsg(client, parsed);
+        else if (parsed.cmd == "PART")
+            cmd_part(client, parsed);
+        else if (parsed.cmd == "KICK")
+            cmd_kick(client, parsed);
+        else if (!parsed.cmd.empty())
+            client->reply("421 " + client->get_nickname() + " " + parsed.cmd + " :Unknown command\r\n");
+    }
+    else if(!parsed.cmd.empty())
+    {
+        client->reply("451 :You have not registered\r\n");
+    }
 }

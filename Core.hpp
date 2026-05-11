@@ -26,9 +26,14 @@ public:
 
     void        cmd_join(Client* client, mssg& msg);
     void        cmd_privmsg(Client* client, mssg& msg);
-
     void        cmd_part(Client* client, mssg& msg);
     void        cmd_kick(Client* client, mssg& msg);
+
+    void        cmd_pass(Client *client, mssg& msg);
+    void        cmd_nick(Client *client, mssg& msg);
+    void        cmd_user(Client *client, mssg& msg);
+
+
 
 };
 
