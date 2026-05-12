@@ -7,11 +7,11 @@
 #include <sys/socket.h>
 #include <iostream>
 
+Server::Server(int port, const std::string & password) : _port(port), _pw(password) {
+    _core.set_password(_pw);
+}
 
-
-Server::Server(int port):_port(port){}
-
-Server::~Server(){}
+Server::~Server() {}
 
 void Server::init()
 {
@@ -31,7 +31,7 @@ void Server::init()
         throw (std::runtime_error("failed to bind to port."));
     if(listen(_server_fd, 10) == -1)
         throw (std::runtime_error("failed to listen."));
-    std::cout << GREEN << "Success! The server is listening on port " << _port <<std::endl;
+    std::cout << GREEN << "Success! The server is listening on port " << _port << RESET << std::endl;
     struct pollfd server_pollfd;
     server_pollfd.fd = _server_fd;
     server_pollfd.events = POLLIN;
@@ -49,25 +49,32 @@ void Server::_acceptNewClient()
     if (client_fd != -1)
     {
         fcntl(client_fd, F_SETFL, O_NONBLOCK);
-        std::cout << GREEN << "A new client walked in! FD:" << RESET << client_fd << std::endl;
+        
         struct pollfd client_pollfd;
         client_pollfd.fd = client_fd;
         client_pollfd.events = POLLIN;
         client_pollfd.revents = 0;
         _fds.push_back(client_pollfd);
-        _clients[client_fd] = Client(client_fd);
+        
+        // LINK 1: The Front Door. 
+        _core.on_client_connect(client_fd);
     }
 }
 
 void Server::_handleClientMessage(int fd, char *buffer)
 {
-    _clients[fd].append_buffer(buffer);
+    _client_buffers[fd] += buffer; 
+    
     size_t pos;
-    while((pos = _clients[fd].get_buffer().find('\n')) != std::string::npos)
+
+    while((pos = _client_buffers[fd].find('\n')) != std::string::npos)
     {
-        std::string complete_msg = _clients[fd].get_buffer().substr(0, pos+ 1);
-        std::cout << complete_msg << std::endl;
-        _clients[fd].extract_buffer(pos + 1);
+        std::string complete_msg = _client_buffers[fd].substr(0, pos + 1);
+        
+        // LINK 2: The Mailbox. 
+        _core.process_input(fd, complete_msg);
+        
+        _client_buffers[fd].erase(0, pos + 1);
     }
 }
 
@@ -78,6 +85,7 @@ void Server::run()
         int poll_count = poll(_fds.data(), _fds.size(), -1);
         if(-1 == poll_count)
             throw std::runtime_error("Poll error!");
+            
         for(size_t i = 0; i < _fds.size(); i++)
         {
             if(_fds[i].revents & POLLIN)
@@ -89,16 +97,17 @@ void Server::run()
                     char buffer[1024];
                     std::memset(buffer, 0, sizeof(buffer));
                     int byte_received = recv(_fds[i].fd, buffer, sizeof(buffer)-1, 0);
+                    
                     if(byte_received <= 0)
                     {
-                        std::cout << YELLOW <<"Client " <<_fds[i].fd << " disconnected." << std::endl;
-                        _clients.erase(_fds[i].fd);
+                        _core.on_client_disconnect(_fds[i].fd);
+                        _client_buffers.erase(_fds[i].fd); 
                         close(_fds[i].fd);
                         _fds.erase(_fds.begin() + i);
                         i--;
                     }
                     else
-                        _handleClientMessage(_fds[i].fd,  buffer);
+                        _handleClientMessage(_fds[i].fd, buffer);
                 }
             }
         }

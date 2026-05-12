@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-Client::Client() : fd(-1), buffer(""), nickname(""), username(""), is_registered(false), is_auth(false) {}
+Client::Client() : fd(-1), buffer(""), nickname(""), username(""), is_registered(false), is_auth(false), _hasNickname(false), _hasUsername(false), _hasPassword(false) {}
 
 Client::Client(int client_fd) : fd(client_fd), buffer(""), nickname(""), username(""), is_registered(false), is_auth(false) {}
 

@@ -1,5 +1,6 @@
 #include "Core.hpp"
 #include <iostream>
+#include <string>
 
 Core::Core() {}
 
@@ -55,9 +56,20 @@ void Core::on_client_disconnect(int fd) {
     }
 }
 
+void Core::set_password(const std::string & pw){
+    _server_password = pw;
+}
+
+
 void Core::cmd_pass(Client *client, mssg& msg)
 {
-
+    if (client->get_is_auth())
+        return;
+    if (msg.args.size() >= 2)
+    {
+        if(msg.args[1] == _server_password)
+            client->
+    }
 }
 
 void Core::cmd_user(Client *client, mssg& msg)

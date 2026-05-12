@@ -9,6 +9,9 @@ private:
     std::string buffer;
     std::string nickname;
     std::string username;
+    bool _hasPassword;
+    bool _hasNickname;
+    bool _hasUsername;
     bool        is_registered;
     bool        is_auth;
 public:

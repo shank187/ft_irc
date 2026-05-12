@@ -1,6 +1,8 @@
  #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include "Core.hpp"
+#include <string>
 #include <vector>
 #include <map>
 #include <poll.h>
@@ -18,24 +20,22 @@
 #define CYAN    "\033[36m"
 #define RESET   "\033[0m"
 
-// Include the Client class we made earlier!
-#include "Client.hpp" 
 
 class Server {
 private:
     int                         _port;
     int                         _server_fd;
     std::string                 _pw;
-    std::vector<struct pollfd>  _fds;        // The dynamic list of buzzers
-    std::map<int, Client>       _clients;   // The database of connected users
+    std::vector<struct pollfd>  _fds;
+    std::map<int, std::string>       _client_buffers;
+    Core                        _core;
 
-    // Private Helper Methods (To keep the main loop clean)
     void    _acceptNewClient();
     void    _handleClientMessage(int fd, char *buffer);
     void    _handleClientDisconnection(int fd);
 
 public:
-    Server(int port);
+    Server(int port, const std::string & password);
     ~Server();
 
     void    init(); // Handles socket(), bind(), and listen()

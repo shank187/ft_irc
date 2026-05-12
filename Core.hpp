@@ -11,7 +11,7 @@ class Core {
 private:
     std::map<int, Client*>          clients;
     std::map<std::string, Channel*> channels;
-
+    std::string _server_password; 
     mssg        parse_msg(std::string line);
 
 public:
@@ -20,6 +20,7 @@ public:
     Core& operator=(const Core& rhs);
     ~Core();
 
+    void        set_password(const std::string & pw);
     void        on_client_connect(int fd);
     void        on_client_disconnect(int fd);
     void        process_input(int fd, std::string text);
