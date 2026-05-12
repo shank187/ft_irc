@@ -68,7 +68,11 @@ void Core::cmd_pass(Client *client, mssg& msg)
     if (msg.args.size() >= 2)
     {
         if(msg.args[1] == _server_password)
-            client->
+        {
+            client->get_has_password()
+            
+        }
+        ;
     }
 }
 

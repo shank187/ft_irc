@@ -29,14 +29,15 @@ public:
     std::string get_username() const;
     bool        get_is_registered() const;
     bool        get_is_auth() const;
-
+    bool        get_has_password() const;
     void        append_buffer(const std::string& data);
     void        extract_buffer(size_t pos);
 
     void        set_nickname(std::string nick);
     void        set_username(std::string user);
     void        set_auth(bool status);
-    
+    void        set_has_password(bool status);
+
     void        check_registration();
     void        reply(std::string msg);
 };
