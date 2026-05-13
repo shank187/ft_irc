@@ -6,6 +6,7 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "mssg.hpp"
+#include <Server.hpp>
 
 class Core {
 private:
@@ -33,7 +34,9 @@ public:
     void        cmd_pass(Client *client, mssg& msg);
     void        cmd_nick(Client *client, mssg& msg);
     void        cmd_user(Client *client, mssg& msg);
+    bool        validate_nickname(const std::string &nick);
 
+    bool        check_is_nick_exist(const std::string &);
 
 
 };

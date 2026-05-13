@@ -12,7 +12,6 @@ private:
     bool _hasPassword;
     bool _hasNickname;
     bool _hasUsername;
-    bool        is_registered;
     bool        is_auth;
 public:
 
@@ -27,18 +26,18 @@ public:
     std::string get_buffer() const;
     std::string get_nickname() const;
     std::string get_username() const;
-    bool        get_is_registered() const;
     bool        get_is_auth() const;
+
     bool        get_has_password() const;
+    bool        get_has_nickname() const;
+    bool        get_has_username() const;
     void        append_buffer(const std::string& data);
     void        extract_buffer(size_t pos);
 
     void        set_nickname(std::string nick);
     void        set_username(std::string user);
-    void        set_auth(bool status);
     void        set_has_password(bool status);
 
-    void        check_registration();
     void        reply(std::string msg);
 };
 

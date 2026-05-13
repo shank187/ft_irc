@@ -36,13 +36,13 @@ std::string Client::get_username() const { return username; }
 
 bool Client::get_has_password() const { return _hasPassword; }
 
+bool Client::get_has_nickname() const { return _hasNickname; }
+bool Client::get_has_username() const { return _hasUsername; }
+
 bool Client::get_is_auth() const {
     return (_hasPassword && _hasNickname && _hasUsername);
 }
 
-bool Client::get_is_registered() const {
-    return get_is_auth(); 
-}
 
 // --- Setters ---
 void Client::append_buffer(const std::string& data) { buffer += data; }

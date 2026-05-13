@@ -63,17 +63,73 @@ void Core::set_password(const std::string & pw){
 
 void Core::cmd_pass(Client *client, mssg& msg)
 {
-    if (client->get_is_auth())
+    if (client->get_has_password())
         return;
-    if (msg.args.size() >= 2)
+    if (msg.args.size())
     {
-        if(msg.args[1] == _server_password)
+        if(msg.args[0] == _server_password)
         {
-            client->get_has_password()
-            
+            client->set_has_password(true);
+            client->reply("Correct! passoword check passed\r\n");
+            std::cout << GREEN << "Client fd: " << client->get_fd() << ", has passed password check." << std::endl;
+            if(!client->get_has_nickname())
+                client->reply("add your Nickname to complete your registration! (NICK ur_nickname)\r\n");
+            if(!client->get_has_username())
+                client->reply("add your Usename to complete your registration! (USER ur_username)\r\n");
+            else if (client->get_has_nickname())
+                client->reply("you are successfully authenticated\r\n");
         }
-        ;
+        else{
+            client->reply("Incorrect passoword! try again\r\n");
+            std::cout << YELLOW << "Client fd: " << client->get_fd() << ", has entered a incorrect pw." << std::endl;
+        }
     }
+    else
+    {
+        client->reply("431 :No password given\r\n");
+    }
+}
+
+bool Core::validate_nickname(const std::string &nick)
+{
+    if(nick.size() <= 1 || nick.size() >= 30)
+        return false;
+    for(size_t i = 0; i < nick.size(); i++)
+    {
+        if((nick[i] <= 'a' || nick[i]>='z') &&
+            (nick[i] <= 'A' || nick[i] >= 'Z') &&
+            (i && nick[i] <= '0' || nick[i] >= '9') &&
+            (i && nick[i] != '_' || nick[i] != '\\' ||
+            nick[i] != '{' || nick[i] != '}' ||
+            nick[i] != '[' ||  nick[i] != ']'))
+            return (false);
+    }
+    return (true);
+
+}
+
+bool Core::check_is_nick_exist(const std::string &)
+{
+    std::map<int, Client *>::iterator it;
+    for(it = clients.begin(); it != clients.end(); it++)
+    {
+        Client &client = it->second;
+    }
+}
+
+
+void Core::cmd_nick(Client *client, mssg& msg)
+{
+    if(msg.args.empty())
+    {
+        client->reply("431: No Nickname given\r\n");
+        return;
+    }
+    if(!validate_nickname(msg.args[0]))
+        client->reply("432 " + msg.args[0] + " :Erroneous nickname\r\n");
+        
+    
+
 }
 
 void Core::cmd_user(Client *client, mssg& msg)
@@ -81,10 +137,6 @@ void Core::cmd_user(Client *client, mssg& msg)
 
 }
 
-void Core::cmd_nick(Client *client, mssg& msg)
-{
-
-}
 
 void Core::cmd_join(Client* client, mssg& msg) {
     if (msg.args.empty())

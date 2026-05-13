@@ -32,14 +32,13 @@ private:
 
     void    _acceptNewClient();
     void    _handleClientMessage(int fd, char *buffer);
-    void    _handleClientDisconnection(int fd);
 
 public:
     Server(int port, const std::string & password);
     ~Server();
 
-    void    init(); // Handles socket(), bind(), and listen()
-    void    run();  // Handles the infinite poll() loop
+    void    init();
+    void    run();
 };
 
 #endif
