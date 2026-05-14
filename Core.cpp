@@ -204,9 +204,7 @@ void Core::cmd_join(Client* client, mssg& msg) {
         channels[chan_name] = channel;
     } else
         channel = it->second;
-
     channel->add_client(client);
-
     std::string join_msg = ":" + client->get_nickname() + " JOIN :" + chan_name + "\r\n";
     channel->broadcast(join_msg, NULL);
 }
