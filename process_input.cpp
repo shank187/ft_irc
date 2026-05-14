@@ -78,10 +78,10 @@ void Core::process_input(int fd, std::string text)
             cmd_join(client, parsed);
         else if (parsed.cmd == "PRIVMSG")
             cmd_privmsg(client, parsed);
-        else if (parsed.cmd == "PART")
-            cmd_part(client, parsed);
-        else if (parsed.cmd == "KICK")
-            cmd_kick(client, parsed);
+        // else if (parsed.cmd == "PART")
+        //     cmd_part(client, parsed);
+        // else if (parsed.cmd == "KICK")
+        //     cmd_kick(client, parsed);
         else if (!parsed.cmd.empty())
             client->reply("421 " + client->get_nickname() + " " + parsed.cmd + " :Unknown command\r\n");
     }

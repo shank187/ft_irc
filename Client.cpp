@@ -1,11 +1,14 @@
 #include "Client.hpp"
 #include <iostream>
+#include <sys/socket.h> // ADD THIS FOR send()
 
+// 1. Default Constructor
 Client::Client() : fd(-1), buffer(""), nickname(""), username(""), 
-                _hasNickname(false), _hasUsername(false), _hasPassword(false) {}
+                _hasPassword(false), _hasNickname(false), _hasUsername(false) {}
 
+// 2. Parameterized Constructor
 Client::Client(int client_fd) : fd(client_fd), buffer(""), nickname(""), username(""), 
-                                _hasNickname(false), _hasUsername(false), _hasPassword(false) {}
+                                _hasPassword(false), _hasNickname(false), _hasUsername(false) {}
 
 Client::~Client() {}
 
@@ -71,6 +74,6 @@ void Client::set_realname(std::string r_name)
 }
 
 void Client::reply(std::string msg) {
-    // exp: send(this->fd, msg.c_str(), msg.length(), 0);
+    send(this->fd, msg.c_str(), msg.length(), 0);
     std::cout << "[To FD " << fd << "] -> " << msg << std::endl;
 }

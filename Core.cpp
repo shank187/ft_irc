@@ -76,10 +76,8 @@ void Core::cmd_pass(Client *client, mssg& msg)
             client->reply("Correct! password check passed\r\n");
             std::cout << GREEN << "Client fd: " << client->get_fd() << ", has passed password check." << RESET << std::endl;
             
-            if(!client->get_has_nickname())
-                client->reply("Add your Nickname to complete your registration! (NICK ur_nickname)\r\n");
-            if(!client->get_has_username())
-                client->reply("Add your Username to complete your registration! (USER ur_username)\r\n");
+            client->reply("Add your Nickname to complete your registration! (NICK ur_nickname)\r\n");
+            client->reply("Add your Username to complete your registration! (USER ur_username)\r\n");
         }
         else
         {
@@ -179,7 +177,7 @@ void Core::cmd_user(Client *client, mssg& msg)
         return;
     }
     client->set_username(msg.args[0]);
-    client->set_realname(msg.args[3]); // args[1] and args[2] are ignored safely!
+    client->set_realname(msg.args[3]);
 
     if (client->get_is_auth()) 
     {
@@ -236,12 +234,12 @@ void Core::cmd_privmsg(Client* client, mssg& msg)
     }
 }
 
-void Core::cmd_part(Client* client, mssg& msg)
-{
+// void Core::cmd_part(Client* client, mssg& msg)
+// {
 
-}
+// }
 
-void Core::cmd_kick(Client* client, mssg& msg)
-{
+// void Core::cmd_kick(Client* client, mssg& msg)
+// {
     
-}
+// }
