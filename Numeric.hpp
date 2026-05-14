@@ -27,6 +27,10 @@ inline std::string ERR_NICKNAMEINUSE(std::string client, std::string nick) {
 inline std::string ERR_NEEDMOREPARAMS(std::string client, std::string command) {
     return "461 " + client + " " + command + " :Not enough parameters\r\n";
 }
+// 462
+inline std::string ERR_ALREADYREGISTRED(std::string client) {
+    return "462 " + client + " :Unauthorized command (already registered)\r\n";
+}
 // 464
 inline std::string ERR_PASSWDMISMATCH(std::string client) {
     return "464 " + client + " :Password incorrect\r\n";

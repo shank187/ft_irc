@@ -85,7 +85,7 @@ void Core::process_input(int fd, std::string text)
         else if (!parsed.cmd.empty())
             client->reply("421 " + client->get_nickname() + " " + parsed.cmd + " :Unknown command\r\n");
     }
-    else if(!parsed.cmd.empty())
+    else if(!parsed.cmd.empty() && parsed.cmd != "PASS" && parsed.cmd != "NICK" && parsed.cmd != "USER")
     {
         client->reply("451 :You have not registered\r\n");
     }

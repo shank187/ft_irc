@@ -128,6 +128,12 @@ bool Core::check_is_nick_exist(const std::string & nickname)
 
 void Core::cmd_nick(Client *client, mssg& msg)
 {
+
+    if (!client->get_has_password())
+    {
+        client->reply("464 :Please provide the server password first (PASS <password>)\r\n");
+        return;
+    }
     std::string nick = client->get_nickname().empty() ? "*" : client->get_nickname();
 
     if(msg.args.empty())
@@ -157,7 +163,29 @@ void Core::cmd_nick(Client *client, mssg& msg)
 
 void Core::cmd_user(Client *client, mssg& msg)
 {
-    // You will implement this next!
+    if (!client->get_has_password()) {
+        client->reply("464 :Please provide the server password first (PASS <password>)\r\n");
+        return;
+    }
+    if (client->get_is_auth()) 
+    {
+        client->reply(ERR_ALREADYREGISTRED(client->get_nickname()));
+        return;
+    }
+
+    if (msg.args.size() < 4) 
+    {
+        client->reply(ERR_NEEDMOREPARAMS(client->get_nickname(), "USER"));
+        return;
+    }
+    client->set_username(msg.args[0]);
+    client->set_realname(msg.args[3]); // args[1] and args[2] are ignored safely!
+
+    if (client->get_is_auth()) 
+    {
+        client->reply(RPL_WELCOME(client->get_nickname()));
+        std::cout << GREEN << "Client fd: " << client->get_fd() << " is fully registered!" << RESET << std::endl;
+    }
 }
 
 void Core::cmd_join(Client* client, mssg& msg) {

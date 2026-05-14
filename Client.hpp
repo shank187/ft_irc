@@ -9,6 +9,7 @@ private:
     std::string buffer;
     std::string nickname;
     std::string username;
+    std::string realname;
     bool _hasPassword;
     bool _hasNickname;
     bool _hasUsername;
@@ -37,7 +38,7 @@ public:
     void        set_nickname(std::string nick);
     void        set_username(std::string user);
     void        set_has_password(bool status);
-
+    void        set_realname(std::string r_name);
     void        reply(std::string msg);
 };
 

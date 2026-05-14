@@ -65,6 +65,11 @@ void Client::set_username(std::string user) {
     _hasUsername = true;
 }
 
+void Client::set_realname(std::string r_name)
+{
+    realname = r_name;
+}
+
 void Client::reply(std::string msg) {
     // exp: send(this->fd, msg.c_str(), msg.length(), 0);
     std::cout << "[To FD " << fd << "] -> " << msg << std::endl;
