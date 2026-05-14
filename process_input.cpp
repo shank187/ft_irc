@@ -67,13 +67,12 @@ void Core::process_input(int fd, std::string text)
     mssg parsed = parse_msg(text);
 
     if(parsed.cmd == "PASS")
-        cmd_pass(client, parsed);
+        (cmd_pass(client, parsed));
     else if(parsed.cmd == "NICK")
-        cmd_nick(client, parsed);
+        (cmd_nick(client, parsed));
     else if(parsed.cmd == "USER")
-        cmd_user(client, parsed);
-
-    if (client->get_is_auth()){
+        (cmd_user(client, parsed));
+    else if (client->get_is_auth()){
         if (parsed.cmd == "JOIN")
             cmd_join(client, parsed);
         else if (parsed.cmd == "PRIVMSG")
