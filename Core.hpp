@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <cstdlib>
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "mssg.hpp"
@@ -20,6 +21,7 @@ private:
     std::string _server_password; 
     mssg        parse_msg(std::string line);
 
+    std::vector<std::string> split(const std::string& s, char delimiter);
 public:
     Core();
     Core(const Core& src);
@@ -36,6 +38,11 @@ public:
     void        cmd_privmsg(Client* client, mssg& msg);
     void        cmd_part(Client* client, mssg& msg);
     void        cmd_kick(Client* client, mssg& msg);
+    void        cmd_invite(Client* client, mssg& msg);
+    void        cmd_topic(Client* client, mssg& msg);
+    void        cmd_mode(Client* client, mssg& msg);
+
+    
     void        cmd_ping(Client* client, mssg& msg);
     void        cmd_pass(Client *client, mssg& msg);
     void        cmd_nick(Client *client, mssg& msg);

@@ -2,9 +2,9 @@
 #include "Client.hpp"
 #include <algorithm>
 
-Channel::Channel() : name(""), topic("") {}
+Channel::Channel() : name(""), topic(""), mode_i(false), mode_t(false), password(""), limit(-1) {}
 
-Channel::Channel(std::string ch_name) : name(ch_name), topic("") {}
+Channel::Channel(std::string ch_name) : name(ch_name), topic(""), mode_i(false), mode_t(false), password(""), limit(-1) {}
 
 Channel::~Channel() {}
 
@@ -59,6 +59,19 @@ void Channel::remove_client(Client* client)
     }
 }
 
+void    Channel::remove_operator(Client* client)
+{
+     std::vector<Client*>::iterator it;
+    for (it = operators.begin(); it != operators.end(); ++it)
+    {
+        if (*it == client)
+        {
+            operators.erase(it);
+            break;
+        }
+    }
+}
+
 void Channel::add_operator(Client* client)
 {
     if (!is_operator(client)) {
@@ -83,4 +96,56 @@ void Channel::broadcast(std::string msg, Client* sender)
         if (members[i] != sender)
             members[i]->reply(msg);
     }
+}
+
+
+void Channel::add_invite(Client* client)
+{
+    if (!is_invited(client)) {
+        invited_clients.push_back(client);
+    }
+}
+
+bool Channel::is_invited(Client* client) const
+{
+    return std::find(invited_clients.begin(), invited_clients.end(), client) != invited_clients.end();
+}
+
+
+void Channel::set_mode_i(bool val){ mode_i = val; }
+
+void Channel::set_mode_t(bool val) { mode_t = val; }
+
+void Channel::set_password(std::string pass) { password = pass; }
+
+void Channel::set_limit(int l) { limit = l; }
+
+bool Channel::is_invite_only() const { return mode_i; }
+std::string Channel::get_password() const { return password; }
+int Channel::get_limit() const { return limit; }
+
+
+std::string Channel::get_modes() const
+{
+    std::string modes = "+";
+    if (mode_i)
+        modes += "i";
+    if (mode_t)
+        modes += "t";
+    if (!password.empty())
+        modes += "k";
+    if (limit != -1)
+        modes += "l";
+    return modes;
+}
+
+
+bool Channel::is_topic_restricted() const
+{
+    return mode_t;
+}
+
+const std::vector<Client*>& Channel::get_members() const
+{
+    return members;
 }

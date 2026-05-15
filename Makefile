@@ -11,7 +11,14 @@ SRCS		= main.cpp \
 				process_input.cpp \
 				Client.cpp \
 				Channel.cpp \
-				mssg.cpp
+				mssg.cpp \
+				cmds/cmd_invite.cpp \
+				cmds/cmd_join.cpp\
+				cmds/cmd_kick.cpp\
+				cmds/cmd_mode.cpp\
+				cmds/cmd_part.cpp\
+				cmds/cmd_privmsg.cpp\
+				cmds/cmd_topic.cpp
 
 OBJS		= $(SRCS:.cpp=.o)
 

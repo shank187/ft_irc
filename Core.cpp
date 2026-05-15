@@ -34,22 +34,36 @@ Core::~Core() {
     channels.clear();
 }
 
-void Core::on_client_connect(int fd) {
+void Core::on_client_connect(int fd)
+{
     Client* new_client = new Client(fd);
     clients[fd] = new_client;
     std::cout << "[Core] Client connected on FD: " << fd << std::endl;
 }
 
-void Core::on_client_disconnect(int fd) {
+void Core::on_client_disconnect(int fd)
+{
     std::map<int, Client*>::iterator it = clients.find(fd);
     
     if (it != clients.end()) {
         Client* client_to_remove = it->second;
 
-        std::map<std::string, Channel*>::iterator chan_it;
-        for (chan_it = channels.begin(); chan_it != channels.end(); ++chan_it)
+        std::map<std::string, Channel*>::iterator chan_it = channels.begin();
+        while (chan_it != channels.end())
         {
             chan_it->second->remove_client(client_to_remove);
+            if (chan_it->second->is_operator(client_to_remove))
+                chan_it->second->remove_operator(client_to_remove);
+
+            if (chan_it->second->get_members().empty())
+            {
+                delete chan_it->second;
+                channels.erase(chan_it++);
+            }
+            else
+            {
+                ++chan_it;
+            }
         }
 
         delete client_to_remove;
@@ -194,28 +208,7 @@ void Core::cmd_user(Client *client, mssg& msg)
     }
 }
 
-void Core::cmd_join(Client* client, mssg& msg) {
-    if (msg.args.empty())
-    {
-        client->reply(ERR_NEEDMOREPARAMS(client->get_nickname(), "JOIN"));
-        return;
-    }
 
-    std::string chan_name = msg.args[0];
-    
-    std::map<std::string, Channel*>::iterator it = channels.find(chan_name);
-    Channel* channel;
-
-    if (it == channels.end())
-    {
-        channel = new Channel(chan_name);
-        channels[chan_name] = channel;
-    } else
-        channel = it->second;
-    channel->add_client(client);
-    std::string join_msg = ":" + client->get_nickname() + " JOIN :" + chan_name + "\r\n";
-    channel->broadcast(join_msg, NULL);
-}
 void Core::cmd_ping(Client* client, mssg& msg)
 {
     if (msg.args.empty())
@@ -229,35 +222,24 @@ void Core::cmd_ping(Client* client, mssg& msg)
 }
 
 
-void Core::cmd_privmsg(Client* client, mssg& msg)
+std::vector<std::string> Core::split(const std::string& s, char delimiter)
 {
-    if (msg.args.size() < 2)
+    std::vector<std::string> tokens;
+    std::string token = "";
+    for (size_t i = 0; i < s.length(); ++i)
     {
-        client->reply(ERR_NOTEXTTOSEND(client->get_nickname()));
-        return;
+        if (s[i] == delimiter)
+        {
+            if (!token.empty())
+                tokens.push_back(token);
+            token.clear();
+        }
+        else
+        {
+            token += s[i];
+        }
     }
-
-    std::string target = msg.args[0];
-    std::string text = msg.args[1];
-
-    std::map<std::string, Channel*>::iterator it = channels.find(target);
-    
-    if (it != channels.end())
-    {
-        std::string full_msg = ":" + client->get_nickname() + " PRIVMSG " + target + " :" + text + "\r\n";
-        it->second->broadcast(full_msg, client);
-    } else
-    {
-        client->reply(ERR_NOSUCHNICK(client->get_nickname(), target));
-    }
+    if (!token.empty())
+        tokens.push_back(token);
+    return tokens;
 }
-
-// void Core::cmd_part(Client* client, mssg& msg)
-// {
-
-// }
-
-// void Core::cmd_kick(Client* client, mssg& msg)
-// {
-    
-// }
