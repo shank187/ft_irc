@@ -65,6 +65,7 @@ void Core::process_input(int fd, std::string text)
     Client* client = it->second;
 
     mssg parsed = parse_msg(text);
+    if(parsed.cmd == "CAP") return;
 
     if(parsed.cmd == "PASS")
         (cmd_pass(client, parsed));

@@ -5,7 +5,7 @@ int main(int argc, char **argv)
 {
     // 1. Check for the correct number of arguments
     if (argc != 3) {
-        std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
+        std::cerr<< RED << "Usage: ./ircserv <port> <password>" << RESET << std::endl;
         return 1;
     }
 
