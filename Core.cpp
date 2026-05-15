@@ -74,10 +74,7 @@ void Core::cmd_pass(Client *client, mssg& msg)
         {
             client->set_has_password(true);
             client->reply("Correct! password check passed\r\n");
-            std::cout << GREEN << "Client fd: " << client->get_fd() << ", has passed password check." << RESET << std::endl;
-            
-            client->reply("Add your Nickname to complete your registration! (NICK ur_nickname)\r\n");
-            client->reply("Add your Username to complete your registration! (USER ur_username)\r\n");
+            std::cout << GREEN << "Client fd: " << client->get_fd() << ", has passed password check." << RESET << std::endl;            
         }
         else
         {
