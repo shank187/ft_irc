@@ -29,8 +29,9 @@ public:
     void        set_password(const std::string & pw);
     void        on_client_connect(int fd);
     void        on_client_disconnect(int fd);
-    void        process_input(int fd, std::string text);
+    bool        process_input(int fd, std::string text);
 
+    void        cmd_quit(Client* client, mssg& msg);
     void        cmd_join(Client* client, mssg& msg);
     void        cmd_privmsg(Client* client, mssg& msg);
     void        cmd_part(Client* client, mssg& msg);

@@ -54,26 +54,31 @@ mssg Core::parse_msg(std::string line)
 }
 
 
-void Core::process_input(int fd, std::string text)
+bool Core::process_input(int fd, std::string text)
 {
 
     std::map<int, Client*>::iterator it = clients.find(fd);
     if (it == clients.end())
-        return;
+        return true;
 
 
     Client* client = it->second;
 
     mssg parsed = parse_msg(text);
-    if(parsed.cmd == "CAP") return;
 
+    if (parsed.cmd == "QUIT")
+    {
+        cmd_quit(client, parsed);
+        return false;
+    }
+    if(parsed.cmd == "CAP") return true;
     if(parsed.cmd == "PASS")
         (cmd_pass(client, parsed));
     else if(parsed.cmd == "NICK")
         (cmd_nick(client, parsed));
     else if(parsed.cmd == "USER")
         (cmd_user(client, parsed));
-    else if (client->get_is_auth()){
+    else if (client->get_is_auth()){ 
         if (parsed.cmd == "JOIN")
             cmd_join(client, parsed);
         else if (parsed.cmd == "PRIVMSG")
@@ -91,4 +96,5 @@ void Core::process_input(int fd, std::string text)
     {
         client->reply("451 :You have not registered\r\n");
     }
+    return true;
 }

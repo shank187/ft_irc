@@ -63,6 +63,17 @@ void Core::set_password(const std::string & pw) {
     _server_password = pw;
 }
 
+void Core::cmd_quit(Client* client, mssg& msg)
+{
+    std::string reason = "Client Quit";
+    
+    if (!msg.args.empty()) {
+        reason = msg.args[0]; 
+    }
+    client->reply("ERROR :Closing Link: " + client->get_nickname() + " (" + reason + ")\r\n");
+    std::cout << YELLOW << "[Server] Client FD " << client->get_fd() << " issued QUIT (" << reason << ")" << RESET << std::endl;
+}
+
 void Core::cmd_pass(Client *client, mssg& msg)
 {
     if (client->get_has_password())

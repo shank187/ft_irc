@@ -2,6 +2,7 @@
 #define SERVER_HPP
 
 #include "Core.hpp"
+#include <cstddef>
 #include <string>
 #include <vector>
 #include <map>
@@ -31,7 +32,8 @@ private:
     Core                        _core;
 
     void    _acceptNewClient();
-    void    _handleClientMessage(int fd, char *buffer);
+    bool    _handleClientMessage(int fd, char *buffer);
+    void    _handleClientDisconnection(size_t &i);
 
 public:
     Server(int port, const std::string & password);

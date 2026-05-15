@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include <cstddef>
 #include <cstring>
 #include <fcntl.h>
 #include <netinet/in.h>
@@ -61,7 +62,7 @@ void Server::_acceptNewClient()
     }
 }
 
-void Server::_handleClientMessage(int fd, char *buffer)
+bool Server::_handleClientMessage(int fd, char *buffer)
 {
     _client_buffers[fd] += buffer; 
     
@@ -72,10 +73,20 @@ void Server::_handleClientMessage(int fd, char *buffer)
         std::string complete_msg = _client_buffers[fd].substr(0, pos + 1);
         
         // LINK 2: The Mailbox. 
-        _core.process_input(fd, complete_msg);
-        
+        if(! _core.process_input(fd, complete_msg))
+            return false;
         _client_buffers[fd].erase(0, pos + 1);
     }
+    return true;
+}
+
+void Server::_handleClientDisconnection(size_t &i)
+{
+    _core.on_client_disconnect(_fds[i].fd);
+    _client_buffers.erase(_fds[i].fd); 
+    close(_fds[i].fd);
+    _fds.erase(_fds.begin() + i);
+    i--;
 }
 
 void Server::run()
@@ -99,15 +110,10 @@ void Server::run()
                     int byte_received = recv(_fds[i].fd, buffer, sizeof(buffer)-1, 0);
                     
                     if(byte_received <= 0)
-                    {
-                        _core.on_client_disconnect(_fds[i].fd);
-                        _client_buffers.erase(_fds[i].fd); 
-                        close(_fds[i].fd);
-                        _fds.erase(_fds.begin() + i);
-                        i--;
-                    }
+                        _handleClientDisconnection(i);
                     else
-                        _handleClientMessage(_fds[i].fd, buffer);
+                        if (!_handleClientMessage(_fds[i].fd, buffer))
+                            _handleClientDisconnection(i);
                 }
             }
         }
