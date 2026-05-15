@@ -2,7 +2,9 @@
 #include <iostream>
 #include <string>
 #include <cctype>
+#include "Client.hpp"
 #include "Numeric.hpp"
+#include "mssg.hpp"
 
 Core::Core() {}
 
@@ -73,7 +75,6 @@ void Core::cmd_pass(Client *client, mssg& msg)
         if(msg.args[0] == _server_password)
         {
             client->set_has_password(true);
-            client->reply("Correct! password check passed\r\n");
             std::cout << GREEN << "Client fd: " << client->get_fd() << ", has passed password check." << RESET << std::endl;            
         }
         else
@@ -149,7 +150,6 @@ void Core::cmd_nick(Client *client, mssg& msg)
     }    
     
     client->set_nickname(msg.args[0]);
-    client->reply("Your nickname successfully set to: " + msg.args[0] + "\r\n");
     // WELCOME CHECK
     if (client->get_is_auth()) {
         client->reply(RPL_WELCOME(client->get_nickname()));
@@ -205,6 +205,18 @@ void Core::cmd_join(Client* client, mssg& msg) {
     std::string join_msg = ":" + client->get_nickname() + " JOIN :" + chan_name + "\r\n";
     channel->broadcast(join_msg, NULL);
 }
+void Core::cmd_ping(Client* client, mssg& msg)
+{
+    if (msg.args.empty())
+    {
+        // 409 ERR_NOORIGIN
+        client->reply("409 " + client->get_nickname() + " :No origin specified\r\n");
+        return;
+    }
+    client->reply("PONG :" + msg.args[0] + "\r\n");
+    std::cout << "[Core] PING received from " << client->get_nickname() << ". Sent PONG." << std::endl;
+}
+
 
 void Core::cmd_privmsg(Client* client, mssg& msg)
 {

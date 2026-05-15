@@ -78,6 +78,8 @@ void Core::process_input(int fd, std::string text)
             cmd_join(client, parsed);
         else if (parsed.cmd == "PRIVMSG")
             cmd_privmsg(client, parsed);
+        else if (parsed.cmd == "PING")
+            cmd_ping(client, parsed);
         // else if (parsed.cmd == "PART")
         //     cmd_part(client, parsed);
         // else if (parsed.cmd == "KICK")
