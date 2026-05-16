@@ -93,6 +93,8 @@ bool Core::process_input(int fd, std::string text)
             cmd_topic(client, parsed);
         else if (parsed.cmd == "MODE")
             cmd_mode(client, parsed);
+        else if (parsed.cmd == "PING")
+            cmd_ping(client, parsed);
         else if (!parsed.cmd.empty())
             client->reply("421 " + client->get_nickname() + " " + parsed.cmd + " :Unknown command\r\n");
     }
