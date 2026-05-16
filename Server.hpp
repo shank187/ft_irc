@@ -23,24 +23,24 @@
 
 
 class Server {
-private:
-    int                         _port;
-    int                         _server_fd;
-    std::string                 _pw;
-    std::vector<struct pollfd>  _fds;
-    std::map<int, std::string>       _client_buffers;
-    Core                        _core;
-
-    void    _acceptNewClient();
-    bool    _handleClientMessage(int fd, char *buffer);
-    void    _handleClientDisconnection(size_t &i);
-
-public:
-    Server(int port, const std::string & password);
-    ~Server();
-
-    void    init();
-    void    run();
+    private:
+        int                         _port;
+        int                         _server_fd;
+        std::string                 _pw;
+        std::vector<struct pollfd>  _fds;
+        std::map<int, std::string>      _client_buffers;
+        Core                        _core;
+        
+        void    _acceptNewClient();
+        bool    _handleClientMessage(int fd, char *buffer);
+        void    _handleClientDisconnection(size_t &i);
+        
+    public:
+        static bool                 Signal;
+        Server(int port, const std::string & password);
+        ~Server();
+        void    init();
+        void    run();
 };
 
 #endif

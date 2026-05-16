@@ -8,6 +8,9 @@
 #include <sys/socket.h>
 #include <iostream>
 
+
+bool Server::Signal = false;
+
 Server::Server(int port, const std::string & password) : _port(port), _pw(password) {
     _core.set_password(_pw);
 }
@@ -56,8 +59,6 @@ void Server::_acceptNewClient()
         client_pollfd.events = POLLIN;
         client_pollfd.revents = 0;
         _fds.push_back(client_pollfd);
-        
-        // LINK 1: The Front Door. 
         _core.on_client_connect(client_fd);
     }
 }
@@ -66,13 +67,15 @@ bool Server::_handleClientMessage(int fd, char *buffer)
 {
     _client_buffers[fd] += buffer; 
     
+    if (_client_buffers[fd].length() > 512) {
+        _client_buffers[fd].clear();
+        return true; 
+    }
     size_t pos;
 
     while((pos = _client_buffers[fd].find('\n')) != std::string::npos)
     {
         std::string complete_msg = _client_buffers[fd].substr(0, pos + 1);
-        
-        // LINK 2: The Mailbox. 
         if(! _core.process_input(fd, complete_msg))
             return false;
         _client_buffers[fd].erase(0, pos + 1);
@@ -95,7 +98,12 @@ void Server::run()
     {
         int poll_count = poll(_fds.data(), _fds.size(), -1);
         if(-1 == poll_count)
-            throw std::runtime_error("Poll error!");
+        {
+            if(Server::Signal == true)
+                break;
+            else
+                throw std::runtime_error("Poll error!");
+        }
             
         for(size_t i = 0; i < _fds.size(); i++)
         {
@@ -118,4 +126,8 @@ void Server::run()
             }
         }
     }
+    for (size_t i = 0; i < _fds.size(); i++) {
+        close(_fds[i].fd);
+    }
+    std::cout << "All connections closed. Server shutting down." << std::endl;
 }
