@@ -149,7 +149,6 @@ bool Core::check_is_nick_exist(const std::string & nickname)
 
 void Core::cmd_nick(Client *client, mssg& msg)
 {
-
     if (!client->get_has_password())
     {
         client->reply("464 :Please provide the server password first (PASS <password>)\r\n");
@@ -174,15 +173,28 @@ void Core::cmd_nick(Client *client, mssg& msg)
         return;
     }    
     
+    std::string old_nick = client->get_nickname();
+    if (old_nick.empty()) {
+        old_nick = "*";
+    }
     client->set_nickname(msg.args[0]);
-    // WELCOME CHECK
-    if (client->get_is_auth()) {
-        client->reply(RPL_WELCOME(client->get_nickname()));
+    if (client->get_is_auth()) 
+    {
+        if (old_nick != "*" && old_nick != msg.args[0]) 
+        {
+            std::string nick_msg = ":" + old_nick + " NICK :" + client->get_nickname() + "\r\n";
+            client->reply(nick_msg);
+        }
+        else if (old_nick == "*")
+        {
+            client->reply(RPL_WELCOME(client->get_nickname()));
+        }
     }
 }
 
 void Core::cmd_user(Client *client, mssg& msg)
 {
+    bool already_auth = client->get_is_auth();
     if (!client->get_has_password()) {
         client->reply("464 :Please provide the server password first (PASS <password>)\r\n");
         return;
@@ -201,7 +213,7 @@ void Core::cmd_user(Client *client, mssg& msg)
     client->set_username(msg.args[0]);
     client->set_realname(msg.args[3]);
 
-    if (client->get_is_auth()) 
+    if (client->get_is_auth() && !already_auth) 
     {
         client->reply(RPL_WELCOME(client->get_nickname()));
         std::cout << GREEN << "Client fd: " << client->get_fd() << " is fully registered!" << RESET << std::endl;
