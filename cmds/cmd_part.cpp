@@ -13,7 +13,7 @@ void Core::cmd_part(Client* client, mssg& msg)
     }
     
     std::vector<std::string> channels_to_leave = split(msg.args[0], ',');
-    std::string reason = "Leaving";
+    std::string reason = client->get_nickname();
     
     if (msg.args.size() > 1)
         reason = msg.args[1];
@@ -27,7 +27,7 @@ void Core::cmd_part(Client* client, mssg& msg)
         {
             if(it->second->is_member(client))
             {
-                std::string part_msg = ":" + client->get_nickname() + " PART " + target + " :" + reason + "\r\n";
+                std::string part_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@127.0.0.1 PART " + target + " :" + reason + "\r\n";
                 it->second->broadcast(part_msg, client);
                 client->reply(part_msg);
                 

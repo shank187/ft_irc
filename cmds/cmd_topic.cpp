@@ -38,7 +38,7 @@ void Core::cmd_topic(Client* client, mssg& msg)
                     std::string new_topic = msg.args[1];
                     it->second->set_topic(new_topic);
 
-                    std::string topic_msg = ":" + client->get_nickname() + " TOPIC " + target_channel + " :" + new_topic + "\r\n";
+                    std::string topic_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@127.0.0.1 TOPIC " + target_channel + " :" + new_topic + "\r\n";
                     it->second->broadcast(topic_msg, NULL);
                 }
                 else

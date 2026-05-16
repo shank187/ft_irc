@@ -22,6 +22,7 @@ private:
     mssg        parse_msg(std::string line);
 
     std::vector<std::string> split(const std::string& s, char delimiter);
+    bool is_valid_channel_name(const std::string& name);
 public:
     Core();
     Core(const Core& src);

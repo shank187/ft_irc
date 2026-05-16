@@ -15,6 +15,19 @@ void Core::cmd_mode(Client* client, mssg& msg)
     }
 
     std::string target_channel = msg.args[0];
+
+    if (target_channel[0] != '#' && target_channel[0] != '&') 
+    {
+        if (target_channel == client->get_nickname())
+        {
+            client->reply("221 " + client->get_nickname() + " +i\r\n"); 
+            return; 
+        } 
+        else {
+            client->reply("502 " + client->get_nickname() + " :Cant change mode for other users\r\n");
+            return;
+        }
+    }
     std::map<std::string, Channel*>::iterator it = channels.find(target_channel);
 
     if (it != channels.end())
@@ -66,19 +79,29 @@ void Core::cmd_mode(Client* client, mssg& msg)
                 it->second->set_mode_t(add);
                 applied_modes += "t";
             }
-            else if (c == 'k')
+           else if (c == 'k')
             {
                 if (add && arg_idx < msg.args.size())
                 {
-                    it->second->set_password(msg.args[arg_idx]);
-                    applied_modes += "k";
-                    applied_args += " " + msg.args[arg_idx];
+
+                    if (!it->second->get_password().empty()) {
+                        client->reply("467 " + client->get_nickname() + " " + target_channel + " :Channel key already set\r\n");
+                    } else {
+                        it->second->set_password(msg.args[arg_idx]);
+                        applied_modes += "k";
+                        applied_args += " " + msg.args[arg_idx];
+                    }
                     arg_idx++;
                 }
                 else if (!add)
                 {
                     it->second->set_password("");
                     applied_modes += "k";
+                    if (arg_idx < msg.args.size())
+                    {
+                        applied_args += " " + msg.args[arg_idx];
+                        arg_idx++;
+                    }
                 }
             }
             else if (c == 'l')
@@ -115,7 +138,11 @@ void Core::cmd_mode(Client* client, mssg& msg)
                         }
                     }
 
-                    if (target_client != NULL && it->second->is_member(target_client))
+                    if (!target_client)
+                        client->reply("401 " + client->get_nickname() + " " + target_nick + " :No such nick/channel\r\n");
+                    else if (!it->second->is_member(target_client))
+                        client->reply("441 " + client->get_nickname() + " " + target_nick + " " + target_channel + " :They aren't on that channel\r\n");
+                    else
                     {
                         if (add)
                             it->second->add_operator(target_client);
@@ -125,19 +152,12 @@ void Core::cmd_mode(Client* client, mssg& msg)
                         applied_modes += "o";
                         applied_args += " " + target_nick;
                     }
-                    else
-                    {
-                        client->reply("401 " + client->get_nickname() + " " + target_nick + " :No such nick/channel\r\n");
-                    }
                 }
             }
             else
-            {
                 client->reply("472 " + client->get_nickname() + " " + c + " :is unknown mode char to me\r\n");
-            }
         }
 
-        // 4. Sift L'Fadi7a (Broadcast) l'kolchi f l'channel
         if (!applied_modes.empty() && applied_modes != "+" && applied_modes != "-")
         {
             std::string mode_msg = ":" + client->get_nickname() + " MODE " + target_channel + " " + applied_modes + applied_args + "\r\n";

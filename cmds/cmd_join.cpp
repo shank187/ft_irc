@@ -14,6 +14,38 @@ void Core::cmd_join(Client* client, mssg& msg) {
     }
 
 
+    if (msg.args[0] == "0")
+    {
+        std::map<std::string, Channel*>::iterator it = channels.begin();
+        while (it != channels.end())
+        {
+            if (it->second->is_member(client))
+            {
+                std::string part_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@127.0.0.1 PART " + it->first + " :Left all channels\r\n";
+                it->second->broadcast(part_msg, NULL);
+
+                it->second->remove_client(client);
+                if (it->second->is_operator(client))
+                    it->second->remove_operator(client);
+
+                if (it->second->get_members().empty())
+                {
+                    delete it->second;
+                    channels.erase(it++);
+                }
+                else
+                {
+                    it++;
+                }
+            }
+            else
+            {
+                it++;
+            }
+        }
+        return;
+    }
+
     std::vector<std::string> channels_to_join = split(msg.args[0], ',');
     
     std::vector<std::string> keys;
@@ -23,6 +55,25 @@ void Core::cmd_join(Client* client, mssg& msg) {
     for (size_t i = 0; i < channels_to_join.size(); i++)
     {
         std::string chan_name = channels_to_join[i];
+        if (!is_valid_channel_name(chan_name))
+        {
+            client->reply("403 " + client->get_nickname() + " " + chan_name + " :No such channel (Invalid name)\r\n");
+            continue;
+        }
+
+        int current_channels = 0;
+        std::map<std::string, Channel*>::iterator c_it;
+        for (c_it = channels.begin(); c_it != channels.end(); ++c_it)
+        {
+            if (c_it->second->is_member(client))
+                current_channels++;
+        }
+        if (current_channels >= 10)
+        {
+            client->reply("405 " + client->get_nickname() + " " + chan_name + " :You have joined too many channels\r\n");
+            continue;
+        }
+
         std::map<std::string, Channel*>::iterator it = channels.find(chan_name);
         Channel* channel;
 
@@ -64,8 +115,11 @@ void Core::cmd_join(Client* client, mssg& msg) {
 
         channel->add_client(client);
     
-        std::string join_msg = ":" + client->get_nickname() + " JOIN :" + chan_name + "\r\n";
+        std::string join_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@127.0.0.1 JOIN :" + chan_name + "\r\n";
         channel->broadcast(join_msg, NULL);
+
+        if (!channel->get_topic().empty())
+            client->reply("332 " + client->get_nickname() + " " + chan_name + " :" + channel->get_topic() + "\r\n");
 
 
         //chanel list numbers !!!!!!!!!!11
