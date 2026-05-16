@@ -1,7 +1,11 @@
 NAME		= ircserv
+BOT_NAME = bot
 
 CXX			= c++
 CXXFLAGS	= -Wall -Wextra -Werror -std=c++98
+
+BOT_SRCS = bonus/bot.cpp
+BOT_OBJS = $(BOT_SRCS:.cpp=.o)
 
 RM			= rm -f
 
@@ -29,11 +33,17 @@ $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS)
 	@printf "\033[32m[SUCCESS] ft_irc compiled successfully!\033[0m\n"
 
+bonus: $(BOT_NAME)
+
+$(BOT_NAME): $(BOT_OBJS)
+	$(CXX) $(CXXFLAGS) $(BOT_OBJS) -o $(BOT_NAME)
+
+
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	$(RM) $(OBJS)
+	$(RM) $(OBJS) $(BOT_OBJS)
 	@printf "\033[33m[CLEAN] Object files removed.\033[0m\n"
 
 fclean: clean
