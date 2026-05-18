@@ -38,7 +38,11 @@ void Core::cmd_mode(Client* client, mssg& msg)
             client->reply("324 " + client->get_nickname() + " " + target_channel + " " + current_modes + "\r\n");
             return ;
         }
-
+        if (msg.args.size() >= 2 && (msg.args[1] == "b" || msg.args[1] == "+b")) 
+        {
+            client->reply("368 " + client->get_nickname() + " " + target_channel + " :End of channel ban list\r\n");
+            return;
+        }
         //set mode!!!!!!!!!!1
         
         if (!it->second->is_operator(client))
@@ -160,7 +164,7 @@ void Core::cmd_mode(Client* client, mssg& msg)
 
         if (!applied_modes.empty() && applied_modes != "+" && applied_modes != "-")
         {
-            std::string mode_msg = ":" + client->get_nickname() + " MODE " + target_channel + " " + applied_modes + applied_args + "\r\n";
+            std::string mode_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@127.0.0.1 MODE " + target_channel + " " + applied_modes + applied_args + "\r\n";
             it->second->broadcast(mode_msg, NULL);
         }
     } 
