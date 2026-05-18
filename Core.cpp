@@ -5,6 +5,7 @@
 #include "Client.hpp"
 #include "Numeric.hpp"
 #include "mssg.hpp"
+#include <set>
 
 Core::Core() {}
 
@@ -73,6 +74,31 @@ void Core::on_client_disconnect(int fd)
     }
 }
 
+
+void Core::broadcast_global(Client* sender, const std::string& message, bool include_sender)
+{
+    std::set<Client*> recipients;
+    if(include_sender)
+        recipients.insert(sender);
+
+    std::map<std::string, Channel*>::iterator it;
+    for (it = channels.begin(); it != channels.end(); ++it) 
+    {
+        if (it->second->is_member(sender)) 
+        {
+            std::vector<Client*> members = it->second->get_members();
+            for (size_t i = 0; i < members.size(); i++) {
+                if (members[i] != sender || include_sender == true)
+                    recipients.insert(members[i]);
+            }
+        }
+    }
+    std::set<Client*>::iterator set_it;
+    for (set_it = recipients.begin(); set_it != recipients.end(); ++set_it) {
+        (*set_it)->reply(message);
+    }
+}
+
 void Core::set_password(const std::string & pw) {
     _server_password = pw;
 }
@@ -80,11 +106,15 @@ void Core::set_password(const std::string & pw) {
 void Core::cmd_quit(Client* client, mssg& msg)
 {
     std::string reason = "Client Quit";
-    
     if (!msg.args.empty()) {
         reason = msg.args[0]; 
     }
+    
     client->reply("ERROR :Closing Link: " + client->get_nickname() + " (" + reason + ")\r\n");
+    
+    std::string quit_msg = ":" + client->get_nickname() + " QUIT :Quit: " + reason + "\r\n";
+    broadcast_global(client, quit_msg, false);
+
     std::cout << YELLOW << "[Server] Client FD " << client->get_fd() << " issued QUIT (" << reason << ")" << RESET << std::endl;
 }
 
@@ -149,7 +179,6 @@ bool Core::check_is_nick_exist(const std::string & nickname)
 
 void Core::cmd_nick(Client *client, mssg& msg)
 {
-
     if (!client->get_has_password())
     {
         client->reply("464 :Please provide the server password first (PASS <password>)\r\n");
@@ -174,15 +203,28 @@ void Core::cmd_nick(Client *client, mssg& msg)
         return;
     }    
     
+    std::string old_nick = client->get_nickname();
+    if (old_nick.empty()) {
+        old_nick = "*";
+    }
     client->set_nickname(msg.args[0]);
-    // WELCOME CHECK
-    if (client->get_is_auth()) {
-        client->reply(RPL_WELCOME(client->get_nickname()));
+    if (client->get_is_auth()) 
+    {
+        if (old_nick != "*" && old_nick != msg.args[0]) 
+        {
+            std::string nick_msg = ":" + old_nick + " NICK :" + client->get_nickname() + "\r\n";
+            broadcast_global(client ,nick_msg, true);
+        }
+        else if (old_nick == "*")
+        {
+            client->reply(RPL_WELCOME(client->get_nickname()));
+        }
     }
 }
 
 void Core::cmd_user(Client *client, mssg& msg)
 {
+    bool already_auth = client->get_is_auth();
     if (!client->get_has_password()) {
         client->reply("464 :Please provide the server password first (PASS <password>)\r\n");
         return;
@@ -201,7 +243,7 @@ void Core::cmd_user(Client *client, mssg& msg)
     client->set_username(msg.args[0]);
     client->set_realname(msg.args[3]);
 
-    if (client->get_is_auth()) 
+    if (client->get_is_auth() && !already_auth) 
     {
         client->reply(RPL_WELCOME(client->get_nickname()));
         std::cout << GREEN << "Client fd: " << client->get_fd() << " is fully registered!" << RESET << std::endl;

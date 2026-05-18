@@ -1,5 +1,5 @@
 #include "Core.hpp"
-
+#include <iostream>
 
 mssg Core::parse_msg(std::string line)
 {
@@ -71,7 +71,7 @@ bool Core::process_input(int fd, std::string text)
         cmd_quit(client, parsed);
         return false;
     }
-    if(parsed.cmd == "CAP") return true;
+    if(parsed.cmd == "CAP" || parsed.cmd == "WHOIS" || parsed.cmd == "WHO") return true;
     if(parsed.cmd == "PASS")
         (cmd_pass(client, parsed));
     else if(parsed.cmd == "NICK")
@@ -100,6 +100,7 @@ bool Core::process_input(int fd, std::string text)
     }
     else if(!parsed.cmd.empty() && parsed.cmd != "PASS" && parsed.cmd != "NICK" && parsed.cmd != "USER")
     {
+        std::cout << YELLOW<<"ignored cmd:" << RESET<< parsed.cmd << std::endl ;
         client->reply("451 :You have not registered\r\n");
     }
     return true;
