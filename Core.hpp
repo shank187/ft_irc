@@ -33,7 +33,7 @@ public:
     void        on_client_connect(int fd);
     void        on_client_disconnect(int fd);
     bool        process_input(int fd, std::string text);
-
+    void        broadcast_global(Client* sender, const std::string& message, bool include_sender);
     void        cmd_quit(Client* client, mssg& msg);
     void        cmd_join(Client* client, mssg& msg);
     void        cmd_privmsg(Client* client, mssg& msg);
