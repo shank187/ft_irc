@@ -73,7 +73,18 @@ void Client::set_realname(std::string r_name)
     realname = r_name;
 }
 
-void Client::reply(std::string msg) {
-    send(this->fd, msg.c_str(), msg.length(), 0);
-    std::cout << "[To FD " << fd << "] -> " << msg << std::endl;
+void Client::reply(std::string msg)
+{
+    size_t total_sent = 0;
+    size_t bytes_left = msg.length();
+    ssize_t n = 0;
+
+    while (total_sent < msg.length())
+    {
+        n = send(this->fd, msg.c_str() + total_sent, bytes_left, 0);
+        if (n == -1)
+            break;
+        total_sent += n;
+        bytes_left -= n;
+    }
 }

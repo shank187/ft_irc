@@ -13,13 +13,18 @@ Channel::Channel(const Channel& src)
     *this = src;
 }
 
-Channel& Channel::operator=(const Channel& rhs)
+Channel& Channel::operator=(const Channel& o)
 {
-    if (this != &rhs) {
-        this->name = rhs.name;
-        this->topic = rhs.topic;
-        this->members = rhs.members;
-        this->operators = rhs.operators;
+    if (this != &o) {
+        this->name = o.name;
+        this->topic = o.topic;
+        this->members = o.members;
+        this->operators = o.operators;
+        this->mode_i = o.mode_i;
+        this->mode_t = o.mode_t;
+        this->password = o.password;
+        this->limit = o.limit;
+        this->invited_clients = o.invited_clients;
     }
     return *this;
 }
