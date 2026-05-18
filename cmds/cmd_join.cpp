@@ -114,6 +114,9 @@ void Core::cmd_join(Client* client, mssg& msg) {
         }
 
         channel->add_client(client);
+        
+        if (channel->is_invited(client))
+            channel->remove_invite(client);
     
         std::string join_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@127.0.0.1 JOIN :" + chan_name + "\r\n";
         channel->broadcast(join_msg, NULL);

@@ -154,3 +154,16 @@ const std::vector<Client*>& Channel::get_members() const
 {
     return members;
 }
+
+
+void Channel::remove_invite(Client* client)
+{
+    for (std::vector<Client*>::iterator it = invited_clients.begin(); it != invited_clients.end(); ++it)
+    {
+        if (*it == client)
+        {
+            invited_clients.erase(it);
+            break;
+        }
+    }
+}

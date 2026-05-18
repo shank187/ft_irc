@@ -58,6 +58,7 @@ public:
     std::string get_password() const;
     int         get_limit() const;
     bool        is_invite_only() const;
+    void        remove_invite(Client* client);
 
     bool        is_topic_restricted() const;
     const       std::vector<Client*>& get_members() const;
