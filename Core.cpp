@@ -197,6 +197,7 @@ void Core::cmd_nick(Client *client, mssg& msg)
         client->reply(ERR_ERRONEUSNICKNAME(nick, msg.args[0]));
         return;
     }
+    if (msg.args[0] == client->get_nickname()) return;
     if(check_is_nick_exist(msg.args[0]))
     {
         client->reply(ERR_NICKNAMEINUSE(nick, msg.args[0]));

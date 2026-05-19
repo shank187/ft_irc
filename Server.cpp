@@ -65,24 +65,24 @@ void Server::_acceptNewClient()
 
 bool Server::_handleClientMessage(int fd, char *buffer)
 {
-    _client_buffers[fd] += buffer; 
-    
-    if (_client_buffers[fd].length() > 512) {
-        _client_buffers[fd].clear();
-        return true; 
-    }
+    _client_buffers[fd] += buffer;
     size_t pos;
 
     while((pos = _client_buffers[fd].find('\n')) != std::string::npos)
     {
         std::string complete_msg = _client_buffers[fd].substr(0, pos + 1);
+        _client_buffers[fd].erase(0, pos + 1); 
+
+        if (complete_msg.length() > 512) continue; 
+
         if(! _core.process_input(fd, complete_msg))
             return false;
-        _client_buffers[fd].erase(0, pos + 1);
     }
+    
+    if (_client_buffers[fd].length() > 2048) _client_buffers[fd].clear();
+    
     return true;
 }
-
 void Server::_handleClientDisconnection(size_t &i)
 {
     _core.on_client_disconnect(_fds[i].fd);
