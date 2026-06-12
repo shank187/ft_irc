@@ -83,6 +83,7 @@ bool Server::_handleClientMessage(int fd, char *buffer)
     
     return true;
 }
+
 void Server::_handleClientDisconnection(size_t &i)
 {
     _core.on_client_disconnect(_fds[i].fd);
@@ -129,5 +130,5 @@ void Server::run()
     for (size_t i = 0; i < _fds.size(); i++) {
         close(_fds[i].fd);
     }
-    std::cout << "All connections closed. Server shutting down." << std::endl;
+    std::cout << GREEN << "All connections closed... \n"<< YELLOW << "Server shutting down." << RESET <<std::endl;
 }

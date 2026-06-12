@@ -8,14 +8,12 @@ bool is_valid_port(const std::string& port_str)
     if (port_str.empty()) 
         return false;
         
-    // 1. Check if every single character is a number (this blocks "-33" and "66a7")
     for (size_t i = 0; i < port_str.length(); i++) {
         if (!std::isdigit(port_str[i])) {
             return false;
         }
     }
     
-    // 2. Convert to integer and check the range
     int port = std::atoi(port_str.c_str());
     if (port < 1024 || port > 65535) {
         return false;
@@ -27,7 +25,7 @@ bool is_valid_port(const std::string& port_str)
 void sig_handler(int signum) {
     (void)signum;
     std::cout << "\n[!] Signal received. Shutting down server gracefully..." << std::endl;
-    Server::Signal = true; // Tell the poll() loop to stop
+    Server::Signal = true;
 }
 
 
