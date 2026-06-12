@@ -13,75 +13,86 @@ void Core::cmd_kick(Client* client, mssg& msg)
        return ;
     }
 
-    std::string target_channel = msg.args[0];
+    std::vector<std::string> target_channels = split(msg.args[0], ',');
     std::vector<std::string> targets = split(msg.args[1], ',');
     
+    if (target_channels.size() != 1 && target_channels.size() != targets.size())
+    {
+        client->reply("461 " + client->get_nickname() + " KICK :Not enough parameters\r\n");
+        return;
+    }
+
     std::string reason = "kicked by admin :)";
     if (msg.args.size() > 2)
         reason = msg.args[2];
     
-    std::map<std::string, Channel*>::iterator it = channels.find(target_channel);
-
-    if (it != channels.end())
+    for (size_t i = 0; i < targets.size(); ++i)
     {
-        if(it->second->is_member(client))
+        std::string current_channel_name;
+        if (target_channels.size() == 1)
+            current_channel_name = target_channels[0];
+        else
+            current_channel_name = target_channels[i];
+    
+        std::string target_nickname = targets[i];
+
+        std::map<std::string, Channel*>::iterator it = channels.find(current_channel_name);
+        if (it == channels.end())
         {
-            if(it->second->is_operator(client))
+            client->reply("403 " + client->get_nickname() + " " + current_channel_name + " :No such channel\r\n");
+            continue;
+        }
+
+        Channel* channel = it->second;
+
+        if (!channel->is_member(client))
+        {
+            client->reply("442 " + client->get_nickname() + " " + current_channel_name + " :You're not on that channel\r\n");
+            continue;
+        }
+
+        if (!channel->is_operator(client))
+        {
+            client->reply("482 " + client->get_nickname() + " " + current_channel_name + " :You're not channel operator\r\n");
+            continue;
+        }
+
+        Client* target_client = NULL;
+        std::map<int, Client*>::iterator it_c;
+        for (it_c = clients.begin(); it_c != clients.end(); ++it_c)
+        {
+            if (it_c->second->get_nickname() == target_nickname)
             {
-                for (size_t i = 0; i < targets.size(); ++i)
-                {
-                    std::string target_nickname = targets[i];
-                    Client* target_client = NULL;
-                    std::map<int, Client*>::iterator it_c;
-                    for (it_c = clients.begin(); it_c != clients.end(); ++it_c)
-                    {
-                        if (it_c->second->get_nickname() == target_nickname)
-                        {
-                            target_client = it_c->second;
-                            break;
-                        }
-                    }
-
-                    if (target_client == NULL)
-                    {
-                        client->reply("401 " + client->get_nickname() + " " + target_nickname + " :No such nick/channel\r\n");
-                        continue;
-                    }
-
-                    if (it->second->is_member(target_client))
-                    {
-                        std::string kick_msg = ":" + client->get_nickname() + " KICK " + target_channel + " " + target_nickname + " :" + reason + "\r\n";
-                        it->second->broadcast(kick_msg, NULL);
-
-                        it->second->remove_client(target_client);
-                        if (it->second->is_operator(target_client))
-                            it->second->remove_operator(target_client);
-                        
-                        if (it->second->get_members().empty())
-                        {
-                            delete it->second;
-                            channels.erase(it);
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        client->reply("441 " + client->get_nickname() + " " + target_nickname + " " + target_channel + " :They aren't on that channel\r\n");
-                    }
-                }
+                target_client = it_c->second;
+                break;
             }
-            else
+        }
+
+        if (target_client == NULL)
+        {
+            client->reply("401 " + client->get_nickname() + " " + target_nickname + " :No such nick/channel\r\n");
+            continue;
+        }
+
+        if (channel->is_member(target_client))
+        {
+            std::string kick_msg = ":" + client->get_nickname() + " KICK " + current_channel_name + " " + target_nickname + " :" + reason + "\r\n";
+            channel->broadcast(kick_msg, NULL);
+
+
+            channel->remove_client(target_client);
+            if (channel->is_operator(target_client))
+                channel->remove_operator(target_client);
+            
+            if (channel->get_members().empty())
             {
-                client->reply("482 " + client->get_nickname() + " " + target_channel + " :You're not channel operator\r\n");
+                delete channel;
+                channels.erase(it);
             }
         }
         else
         {
-            client->reply("442 " + client->get_nickname() + " " + target_channel + " :You're not on that channel\r\n");
+            client->reply("441 " + client->get_nickname() + " " + target_nickname + " " + current_channel_name + " :They aren't on that channel\r\n");
         }
-    } 
-    else
-    {
-        client->reply("403 " + client->get_nickname() + " " + target_channel + " :No such channel\r\n");
     }
 }
