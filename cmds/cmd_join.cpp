@@ -126,18 +126,35 @@ void Core::cmd_join(Client* client, mssg& msg) {
 
 
         //chanel list numbers !!!!!!!!!!11
+        std::string base_msg = "353 " + client->get_nickname() + " = " + chan_name + " :";
         std::string names_list = "";
         const std::vector<Client*>& members = channel->get_members();
         
         for (size_t j = 0; j < members.size(); j++)
         {
+            std::string current_nick = "";
             if (channel->is_operator(members[j]))
-                names_list += "@";
-            names_list += members[j]->get_nickname();
-            if (j != members.size() - 1)
-                names_list += " ";
+                current_nick += "@";
+            current_nick += members[j]->get_nickname();
+
+            if (base_msg.length() + names_list.length() + current_nick.length() + 1 > 510)
+            {
+                client->set_write_buffer(base_msg + names_list + "\r\n");
+                names_list = current_nick;
+            }
+            else
+            {
+                if (!names_list.empty())
+                    names_list += " ";
+                names_list += current_nick;
+            }
         }
-        client->set_write_buffer("353 " + client->get_nickname() + " = " + chan_name + " :" + names_list + "\r\n");
+         
+        if (!names_list.empty())
+        {
+            client->set_write_buffer(base_msg + names_list + "\r\n");
+        }
+        
         client->set_write_buffer("366 " + client->get_nickname() + " " + chan_name + " :End of /NAMES list\r\n");
     }
 }
