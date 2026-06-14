@@ -8,7 +8,7 @@ void Core::cmd_part(Client* client, mssg& msg)
 {
     if (msg.args.size() < 1)
     {
-        client->reply("461 " + client->get_nickname() + " PART :Not enough parameters\r\n");
+        client->set_write_buffer("461 " + client->get_nickname() + " PART :Not enough parameters\r\n");
         return ;
     }
     
@@ -29,7 +29,7 @@ void Core::cmd_part(Client* client, mssg& msg)
             {
                 std::string part_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@127.0.0.1 PART " + target + " :" + reason + "\r\n";
                 it->second->broadcast(part_msg, client);
-                client->reply(part_msg);
+                client->set_write_buffer(part_msg);
                 
                 it->second->remove_client(client);
                 if(it->second->is_operator(client))
@@ -42,9 +42,9 @@ void Core::cmd_part(Client* client, mssg& msg)
                 }
             }
             else
-                client->reply("442 " + client->get_nickname() + " " + target + " :You're not on that channel\r\n");
+                client->set_write_buffer("442 " + client->get_nickname() + " " + target + " :You're not on that channel\r\n");
         } 
         else
-            client->reply("403 " + client->get_nickname() + " " + target + " :No such channel\r\n");
+            client->set_write_buffer("403 " + client->get_nickname() + " " + target + " :No such channel\r\n");
     }
 }

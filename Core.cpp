@@ -95,7 +95,7 @@ void Core::broadcast_global(Client* sender, const std::string& message, bool inc
     }
     std::set<Client*>::iterator set_it;
     for (set_it = recipients.begin(); set_it != recipients.end(); ++set_it) {
-        (*set_it)->reply(message);
+        (*set_it)->set_write_buffer(message);
     }
 }
 
@@ -110,7 +110,7 @@ void Core::cmd_quit(Client* client, mssg& msg)
         reason = msg.args[0]; 
     }
     
-    client->reply("ERROR :Closing Link: " + client->get_nickname() + " (" + reason + ")\r\n");
+    client->set_write_buffer("ERROR :Closing Link: " + client->get_nickname() + " (" + reason + ")\r\n");
     
     std::string quit_msg = ":" + client->get_nickname() + " QUIT :Quit: " + reason + "\r\n";
     broadcast_global(client, quit_msg, false);
@@ -134,13 +134,13 @@ void Core::cmd_pass(Client *client, mssg& msg)
         }
         else
         {
-            client->reply(ERR_PASSWDMISMATCH(nick));
+            client->set_write_buffer(ERR_PASSWDMISMATCH(nick));
             std::cout << YELLOW << "Client fd: " << client->get_fd() << ", has entered an incorrect pw." << RESET << std::endl;
         }
     }
     else
     {
-        client->reply(ERR_NEEDMOREPARAMS(nick, "PASS"));
+        client->set_write_buffer(ERR_NEEDMOREPARAMS(nick, "PASS"));
     }
 }
 
@@ -181,26 +181,26 @@ void Core::cmd_nick(Client *client, mssg& msg)
 {
     if (!client->get_has_password())
     {
-        client->reply("464 :Please provide the server password first (PASS <password>)\r\n");
+        client->set_write_buffer("464 :Please provide the server password first (PASS <password>)\r\n");
         return;
     }
     std::string nick = client->get_nickname().empty() ? "*" : client->get_nickname();
 
     if(msg.args.empty())
     {
-        client->reply(ERR_NONICKNAMEGIVEN(nick));
+        client->set_write_buffer(ERR_NONICKNAMEGIVEN(nick));
         return;
     }
     if(!validate_nickname(msg.args[0]))
     {
         
-        client->reply(ERR_ERRONEUSNICKNAME(nick, msg.args[0]));
+        client->set_write_buffer(ERR_ERRONEUSNICKNAME(nick, msg.args[0]));
         return;
     }
     if (msg.args[0] == client->get_nickname()) return;
     if(check_is_nick_exist(msg.args[0]))
     {
-        client->reply(ERR_NICKNAMEINUSE(nick, msg.args[0]));
+        client->set_write_buffer(ERR_NICKNAMEINUSE(nick, msg.args[0]));
         return;
     }    
     
@@ -218,7 +218,7 @@ void Core::cmd_nick(Client *client, mssg& msg)
         }
         else if (old_nick == "*")
         {
-            client->reply(RPL_WELCOME(client->get_nickname()));
+            client->set_write_buffer(RPL_WELCOME(client->get_nickname()));
         }
     }
 }
@@ -227,18 +227,18 @@ void Core::cmd_user(Client *client, mssg& msg)
 {
     bool already_auth = client->get_is_auth();
     if (!client->get_has_password()) {
-        client->reply("464 :Please provide the server password first (PASS <password>)\r\n");
+        client->set_write_buffer("464 :Please provide the server password first (PASS <password>)\r\n");
         return;
     }
     if (client->get_is_auth()) 
     {
-        client->reply(ERR_ALREADYREGISTRED(client->get_nickname()));
+        client->set_write_buffer(ERR_ALREADYREGISTRED(client->get_nickname()));
         return;
     }
 
     if (msg.args.size() < 4) 
     {
-        client->reply(ERR_NEEDMOREPARAMS(client->get_nickname(), "USER"));
+        client->set_write_buffer(ERR_NEEDMOREPARAMS(client->get_nickname(), "USER"));
         return;
     }
     client->set_username(msg.args[0]);
@@ -246,7 +246,7 @@ void Core::cmd_user(Client *client, mssg& msg)
 
     if (client->get_is_auth() && !already_auth) 
     {
-        client->reply(RPL_WELCOME(client->get_nickname()));
+        client->set_write_buffer(RPL_WELCOME(client->get_nickname()));
         std::cout << GREEN << "Client fd: " << client->get_fd() << " is fully registered!" << RESET << std::endl;
     }
 }
@@ -257,10 +257,10 @@ void Core::cmd_ping(Client* client, mssg& msg)
     if (msg.args.empty())
     {
         // 409 ERR_NOORIGIN
-        client->reply("409 " + client->get_nickname() + " :No origin specified\r\n");
+        client->set_write_buffer("409 " + client->get_nickname() + " :No origin specified\r\n");
         return;
     }
-    client->reply("PONG :" + msg.args[0] + "\r\n");
+    client->set_write_buffer("PONG :" + msg.args[0] + "\r\n");
     std::cout << "[Core] PING received from " << client->get_nickname() << ". Sent PONG." << std::endl;
 }
 
@@ -301,4 +301,13 @@ bool Core::is_valid_channel_name(const std::string& name)
     }
     
     return true;
+}
+
+
+Client * Core::get_client(int fd)
+{
+std::map<int, Client*>::iterator it = clients.find(fd);
+    if (it != clients.end())
+        return it->second;
+    return NULL;
 }

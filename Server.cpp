@@ -97,6 +97,16 @@ void Server::run()
 {
     while(true)
     {
+        for (size_t i = 0; i < _fds.size(); i++) {
+            if (_fds[i].fd != _server_fd) {
+                Client* client = _core.get_client(_fds[i].fd);
+                if (client && !client->get_write_buffer().empty()) {
+                    _fds[i].events = POLLIN | POLLOUT;
+                } else {
+                    _fds[i].events = POLLIN;
+                }
+            }
+        }
         int poll_count = poll(_fds.data(), _fds.size(), -1);
         if(-1 == poll_count)
         {
@@ -123,6 +133,20 @@ void Server::run()
                     else
                         if (!_handleClientMessage(_fds[i].fd, buffer))
                             _handleClientDisconnection(i);
+                }
+            }
+            if (_fds[i].revents & POLLOUT)
+            {
+                Client* client = _core.get_client(_fds[i].fd);
+                if (client) 
+                {
+                    std::string to_send = client->get_write_buffer();
+                    ssize_t bytes_sent = send(_fds[i].fd, to_send.c_str(), to_send.length(), 0);                    
+                    if (bytes_sent > 0) {
+                        client->erase_from_write_buffer(bytes_sent);
+                    } else if (bytes_sent <= 0) {
+                        _handleClientDisconnection(i);
+                    }
                 }
             }
         }

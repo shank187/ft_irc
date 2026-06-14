@@ -10,7 +10,7 @@ void Core::cmd_topic(Client* client, mssg& msg)
 {
     if (msg.args.empty())
     {
-        client->reply("461 " + client->get_nickname() + " TOPIC :Not enough parameters\r\n");
+        client->set_write_buffer("461 " + client->get_nickname() + " TOPIC :Not enough parameters\r\n");
         return ;
     }
     std::string target_channel = msg.args[0];
@@ -23,9 +23,9 @@ void Core::cmd_topic(Client* client, mssg& msg)
             if (msg.args.size() == 1)
             {
                 if (it->second->get_topic().empty())
-                    client->reply("331 " + client->get_nickname() + " " + target_channel + " :No topic is set\r\n");
+                    client->set_write_buffer("331 " + client->get_nickname() + " " + target_channel + " :No topic is set\r\n");
                 else
-                    client->reply("332 " + client->get_nickname() + " " + target_channel + " :" + it->second->get_topic() + "\r\n");
+                    client->set_write_buffer("332 " + client->get_nickname() + " " + target_channel + " :" + it->second->get_topic() + "\r\n");
             }
             else
             {
@@ -43,17 +43,17 @@ void Core::cmd_topic(Client* client, mssg& msg)
                 }
                 else
                 {
-                    client->reply("482 " + client->get_nickname() + " " + target_channel + " :You're not channel operator\r\n");
+                    client->set_write_buffer("482 " + client->get_nickname() + " " + target_channel + " :You're not channel operator\r\n");
                 }
             }
         }
         else
         {
-            client->reply("442 " + client->get_nickname() + " " + target_channel + " :You're not on that channel\r\n");
+            client->set_write_buffer("442 " + client->get_nickname() + " " + target_channel + " :You're not on that channel\r\n");
         }
     }
     else
     {
-        client->reply("403 " + client->get_nickname() + " " + target_channel + " :No such channel\r\n");
+        client->set_write_buffer("403 " + client->get_nickname() + " " + target_channel + " :No such channel\r\n");
     }
 }

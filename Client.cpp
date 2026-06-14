@@ -73,18 +73,31 @@ void Client::set_realname(std::string r_name)
     realname = r_name;
 }
 
-void Client::reply(std::string msg)
+std::string Client::get_write_buffer()
 {
-    size_t total_sent = 0;
-    size_t bytes_left = msg.length();
-    ssize_t n = 0;
+    return _write_buffer;
+}
 
-    while (total_sent < msg.length())
-    {
-        n = send(this->fd, msg.c_str() + total_sent, bytes_left, 0);
-        if (n == -1)
-            break;
-        total_sent += n;
-        bytes_left -= n;
-    }
+void Client::erase_from_write_buffer(size_t bytes)
+{
+    _write_buffer.erase(0, bytes);
+}
+
+void Client::set_write_buffer(std::string msg)
+{
+    _write_buffer += msg;
+    
+
+    // size_t total_sent = 0;
+    // size_t bytes_left = msg.length();
+    // ssize_t n = 0;
+
+    // while (total_sent < msg.length())
+    // {
+    //     n = send(this->fd, msg.c_str() + total_sent, bytes_left, 0);
+    //     if (n == -1)
+    //         break;
+    //     total_sent += n;
+    //     bytes_left -= n;
+    // }
 }

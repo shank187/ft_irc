@@ -7,7 +7,7 @@ void Core::cmd_invite(Client* client, mssg& msg)
 {
     if (msg.args.size() < 2)
     {
-        client->reply("461 " + client->get_nickname() + " INVITE :Not enough parameters\r\n");
+        client->set_write_buffer("461 " + client->get_nickname() + " INVITE :Not enough parameters\r\n");
         return ;
     }
 
@@ -25,7 +25,7 @@ void Core::cmd_invite(Client* client, mssg& msg)
     }
     if (target_client == NULL)
     {
-        client->reply("401 " + client->get_nickname() + " " + target_nickname + " :No such nick/channel\r\n");
+        client->set_write_buffer("401 " + client->get_nickname() + " " + target_nickname + " :No such nick/channel\r\n");
         return ;
     }
 
@@ -42,28 +42,28 @@ void Core::cmd_invite(Client* client, mssg& msg)
             if(can_invite)
             {
                 if(it->second->is_member(target_client))
-                    client->reply("443 " + client->get_nickname() + " " + target_nickname + " " + target_channel + " :is already on channel\r\n");
+                    client->set_write_buffer("443 " + client->get_nickname() + " " + target_nickname + " " + target_channel + " :is already on channel\r\n");
                 else
                 {
                     it->second->add_invite(target_client);
                     
-                    client->reply("341 " + client->get_nickname() + " " + target_nickname + " " + target_channel + "\r\n");
+                    client->set_write_buffer("341 " + client->get_nickname() + " " + target_nickname + " " + target_channel + "\r\n");
                     
                     std::string invite_msg = ":" + client->get_nickname() + " INVITE " + target_nickname + " :" + target_channel + "\r\n";
-                    target_client->reply(invite_msg);
+                    target_client->set_write_buffer(invite_msg);
                 }
             }
             else
             {
-                client->reply("482 " + client->get_nickname() + " " + target_channel + " :You're not channel operator\r\n");
+                client->set_write_buffer("482 " + client->get_nickname() + " " + target_channel + " :You're not channel operator\r\n");
             }
         }
         else
         {
-            client->reply("442 " + client->get_nickname() + " " + target_channel + " :You're not on that channel\r\n");
+            client->set_write_buffer("442 " + client->get_nickname() + " " + target_channel + " :You're not on that channel\r\n");
         }
     } else
     {
-        client->reply("403 " + client->get_nickname() + " " + target_channel + " :No such channel\r\n");
+        client->set_write_buffer("403 " + client->get_nickname() + " " + target_channel + " :No such channel\r\n");
     }
 }

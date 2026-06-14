@@ -8,13 +8,13 @@ void Core::cmd_privmsg(Client* client, mssg& msg)
 {
     if (msg.args.empty())
     {
-        client->reply("411 " + client->get_nickname() + " :No recipient given (PRIVMSG)\r\n");
+        client->set_write_buffer("411 " + client->get_nickname() + " :No recipient given (PRIVMSG)\r\n");
         return;
     }
     
     if (msg.args.size() < 2 || msg.args[1].empty())
     {
-        client->reply("412 " + client->get_nickname() + " :No text to send\r\n");
+        client->set_write_buffer("412 " + client->get_nickname() + " :No text to send\r\n");
         return;
     }
 
@@ -24,7 +24,7 @@ void Core::cmd_privmsg(Client* client, mssg& msg)
 
     if (targets.size() > 10) 
     {
-        client->reply("407 " + client->get_nickname() + " " + msg.args[0] + " :Too many recipients.\r\n");
+        client->set_write_buffer("407 " + client->get_nickname() + " " + msg.args[0] + " :Too many recipients.\r\n");
         return;
     }
 
@@ -40,7 +40,7 @@ void Core::cmd_privmsg(Client* client, mssg& msg)
             {
                 if (!it->second->is_member(client))
                 {
-                    client->reply("404 " + client->get_nickname() + " " + target + " :Cannot send to channel\r\n");
+                    client->set_write_buffer("404 " + client->get_nickname() + " " + target + " :Cannot send to channel\r\n");
                     continue;
                 }
 
@@ -48,7 +48,7 @@ void Core::cmd_privmsg(Client* client, mssg& msg)
                 it->second->broadcast(full_msg, client);
             } 
             else
-                client->reply("401 " + client->get_nickname() + " " + target + " :No such nick/channel\r\n");
+                client->set_write_buffer("401 " + client->get_nickname() + " " + target + " :No such nick/channel\r\n");
         }
         else 
         {
@@ -67,10 +67,10 @@ void Core::cmd_privmsg(Client* client, mssg& msg)
             if (target_client)
             {
                 std::string full_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@127.0.0.1 PRIVMSG " + target + " :" + text + "\r\n";
-                target_client->reply(full_msg);
+                target_client->set_write_buffer(full_msg);
             }
             else
-                client->reply("401 " + client->get_nickname() + " " + target + " :No such nick/channel\r\n");
+                client->set_write_buffer("401 " + client->get_nickname() + " " + target + " :No such nick/channel\r\n");
         }
     }
 }

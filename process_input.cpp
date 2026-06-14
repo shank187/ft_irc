@@ -96,12 +96,12 @@ bool Core::process_input(int fd, std::string text)
         else if (parsed.cmd == "PING")
             cmd_ping(client, parsed);
         else if (!parsed.cmd.empty())
-            client->reply("421 " + client->get_nickname() + " " + parsed.cmd + " :Unknown command\r\n");
+            client->set_write_buffer("421 " + client->get_nickname() + " " + parsed.cmd + " :Unknown command\r\n");
     }
     else if(!parsed.cmd.empty() && parsed.cmd != "PASS" && parsed.cmd != "NICK" && parsed.cmd != "USER")
     {
         std::cout << YELLOW<<"ignored cmd:" << RESET<< parsed.cmd << std::endl ;
-        client->reply("451 :You have not registered\r\n");
+        client->set_write_buffer("451 :You have not registered\r\n");
     }
     return true;
 }

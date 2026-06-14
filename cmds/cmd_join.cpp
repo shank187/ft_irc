@@ -9,7 +9,7 @@
 void Core::cmd_join(Client* client, mssg& msg) {
     if (msg.args.empty())
     {
-        client->reply("461 " + client->get_nickname() + " JOIN :Not enough parameters\r\n");
+        client->set_write_buffer("461 " + client->get_nickname() + " JOIN :Not enough parameters\r\n");
         return;
     }
 
@@ -57,7 +57,7 @@ void Core::cmd_join(Client* client, mssg& msg) {
         std::string chan_name = channels_to_join[i];
         if (!is_valid_channel_name(chan_name))
         {
-            client->reply("403 " + client->get_nickname() + " " + chan_name + " :No such channel (Invalid name)\r\n");
+            client->set_write_buffer("403 " + client->get_nickname() + " " + chan_name + " :No such channel (Invalid name)\r\n");
             continue;
         }
 
@@ -70,7 +70,7 @@ void Core::cmd_join(Client* client, mssg& msg) {
         }
         if (current_channels >= 10)
         {
-            client->reply("405 " + client->get_nickname() + " " + chan_name + " :You have joined too many channels\r\n");
+            client->set_write_buffer("405 " + client->get_nickname() + " " + chan_name + " :You have joined too many channels\r\n");
             continue;
         }
 
@@ -89,7 +89,7 @@ void Core::cmd_join(Client* client, mssg& msg) {
 
             if (channel->is_invite_only() && !channel->is_invited(client))
             {
-                client->reply("473 " + client->get_nickname() + " " + chan_name + " :Cannot join channel (+i)\r\n");
+                client->set_write_buffer("473 " + client->get_nickname() + " " + chan_name + " :Cannot join channel (+i)\r\n");
                 continue;
             }
 
@@ -101,14 +101,14 @@ void Core::cmd_join(Client* client, mssg& msg) {
             
                 if (provided_pass != channel->get_password())
                 {
-                    client->reply("475 " + client->get_nickname() + " " + chan_name + " :Cannot join channel (+k)\r\n");
+                    client->set_write_buffer("475 " + client->get_nickname() + " " + chan_name + " :Cannot join channel (+k)\r\n");
                     continue;
                 }
             }
 
             if (channel->get_limit() != -1 && static_cast<int>(channel->get_members().size()) >= channel->get_limit())
             {
-                client->reply("471 " + client->get_nickname() + " " + chan_name + " :Cannot join channel (+l)\r\n");
+                client->set_write_buffer("471 " + client->get_nickname() + " " + chan_name + " :Cannot join channel (+l)\r\n");
                 continue;
             }
         }
@@ -122,7 +122,7 @@ void Core::cmd_join(Client* client, mssg& msg) {
         channel->broadcast(join_msg, NULL);
 
         if (!channel->get_topic().empty())
-            client->reply("332 " + client->get_nickname() + " " + chan_name + " :" + channel->get_topic() + "\r\n");
+            client->set_write_buffer("332 " + client->get_nickname() + " " + chan_name + " :" + channel->get_topic() + "\r\n");
 
 
         //chanel list numbers !!!!!!!!!!11
@@ -137,7 +137,7 @@ void Core::cmd_join(Client* client, mssg& msg) {
             if (j != members.size() - 1)
                 names_list += " ";
         }
-        client->reply("353 " + client->get_nickname() + " = " + chan_name + " :" + names_list + "\r\n");
-        client->reply("366 " + client->get_nickname() + " " + chan_name + " :End of /NAMES list\r\n");
+        client->set_write_buffer("353 " + client->get_nickname() + " = " + chan_name + " :" + names_list + "\r\n");
+        client->set_write_buffer("366 " + client->get_nickname() + " " + chan_name + " :End of /NAMES list\r\n");
     }
 }

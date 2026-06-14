@@ -99,7 +99,7 @@ void Channel::broadcast(std::string msg, Client* sender)
     for (size_t i = 0; i < members.size(); ++i)
     {
         if (members[i] != sender)
-            members[i]->reply(msg);
+            members[i]->set_write_buffer(msg);
     }
 }
 
