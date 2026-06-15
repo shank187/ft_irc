@@ -7,12 +7,13 @@
 
 // 1. Default Constructor
 Client::Client() : fd(-1), buffer(""), nickname(""), username(""), 
-                _hasPassword(false), _hasNickname(false), _hasUsername(false) {}
+                _hasPassword(false), _hasNickname(false), _hasUsername(false),
+                _last_activity(time(NULL)), _waiting_for_pong(false) {} // <-- Added initializations
 
 // 2. Parameterized Constructor
 Client::Client(int client_fd) : fd(client_fd), buffer(""), nickname(""), username(""), 
-                                _hasPassword(false), _hasNickname(false), _hasUsername(false) {}
-
+                                _hasPassword(false), _hasNickname(false), _hasUsername(false),
+                                _last_activity(time(NULL)), _waiting_for_pong(false) {} // <-- Added initializations
 Client::~Client() {}
 
 Client::Client(const Client& src) {

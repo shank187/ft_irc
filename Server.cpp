@@ -149,7 +149,7 @@ void Server::run()
     {
         _checkPingTimeouts();
         _checkForOutgoingMsg();
-        int poll_count = poll(_fds.data(), _fds.size(), -1);
+        int poll_count = poll(_fds.data(), _fds.size(), 5000);
         if(-1 == poll_count)
         {
             if(Server::Signal == true)
@@ -157,9 +157,11 @@ void Server::run()
             else
                 throw std::runtime_error("Poll error!");
         }
-            
+        else if(poll_count == 0)
+            continue;
         for(size_t i = 0; i < _fds.size(); i++)
         {
+            bool is_disconnected = false;
             if(_fds[i].revents & POLLIN)
             {
                 if(_fds[i].fd == _server_fd)
@@ -171,14 +173,19 @@ void Server::run()
                     int byte_received = recv(_fds[i].fd, buffer, sizeof(buffer)-1, 0);
                     
                     if(byte_received <= 0)
+                    {
+                        is_disconnected = true;
                         _handleClientDisconnection(i);
-                    else
-                        if (!_handleClientMessage(_fds[i].fd, buffer))
-                        {
-                            _handleClientDisconnection(i);
-                        }
+                    }
+                    else if (!_handleClientMessage(_fds[i].fd, buffer))
+                    {
+                        is_disconnected = true;
+                        _handleClientDisconnection(i);
+                    }
                 }
             }
+            if(is_disconnected)
+                continue;
             if (_fds[i].revents & POLLOUT)
             {
                 Client* client = _core.get_client(_fds[i].fd);

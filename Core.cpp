@@ -253,9 +253,11 @@ void Core::cmd_user(Client *client, mssg& msg)
     }
 }
 
-void Core::cmd_pong(Client* client)
+void Core::cmd_pong(Client* client, mssg& msg)
 {
-    client->update_last_activity();
+    (void)msg;
+    client->update_last_activity();     
+    std::cout << GREEN << "[Heartbeat] PONG received from " << client->get_nickname() << RESET << std::endl;
 }
 
 void Core::cmd_ping(Client* client, mssg& msg)
