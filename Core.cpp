@@ -53,6 +53,8 @@ void Core::on_client_disconnect(int fd)
         while (chan_it != channels.end())
         {
             chan_it->second->remove_client(client_to_remove);
+            chan_it->second->remove_invite(client_to_remove);
+            
             if (chan_it->second->is_operator(client_to_remove))
                 chan_it->second->remove_operator(client_to_remove);
 
