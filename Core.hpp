@@ -19,7 +19,7 @@ private:
     std::map<int, Client*>          clients;
     std::map<std::string, Channel*> channels;
     std::string _server_password; 
-    mssg        parse_msg(std::string line);
+    mssg        parse_msg(std::string& line);
 
     std::vector<std::string> split(const std::string& s, char delimiter);
     bool is_valid_channel_name(const std::string& name);
@@ -32,7 +32,7 @@ public:
     void        set_password(const std::string & pw);
     void        on_client_connect(int fd);
     void        on_client_disconnect(int fd);
-    bool        process_input(int fd, std::string text);
+    bool        process_input(int fd, std::string& text);
     void        broadcast_global(Client* sender, const std::string& message, bool include_sender);
     void        cmd_quit(Client* client, mssg& msg);
     void        cmd_join(Client* client, mssg& msg);

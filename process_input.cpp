@@ -1,7 +1,7 @@
 #include "Core.hpp"
 #include <iostream>
 
-mssg Core::parse_msg(std::string line)
+mssg Core::parse_msg(std::string& line)
 {
     mssg msg;
 
@@ -54,7 +54,7 @@ mssg Core::parse_msg(std::string line)
 }
 
 
-bool Core::process_input(int fd, std::string text)
+bool Core::process_input(int fd, std::string& text)
 {
 
     std::map<int, Client*>::iterator it = clients.find(fd);
