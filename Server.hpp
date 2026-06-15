@@ -36,7 +36,7 @@ class Server {
         void    _handleClientDisconnection(size_t &i);
         void    _checkForOutgoingMsg();
         void    send_message();
-        
+        void    _checkPingTimeouts();
     public:
         static bool                 Signal;
         Server(int port, const std::string & password);

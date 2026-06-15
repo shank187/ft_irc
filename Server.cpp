@@ -100,6 +100,35 @@ void Server::_handleClientDisconnection(size_t &i)
     i--;
 }
 
+void Server::_checkPingTimeouts()
+{
+    time_t current_time = time(NULL);
+
+    for (size_t i = 0; i < _fds.size(); i++) {
+        if (_fds[i].fd == _server_fd) continue;
+
+        Client* client = _core.get_client(_fds[i].fd);
+        if (!client) continue;
+        // If the client has been silent for 2 minutes
+        if (current_time - client->get_last_activity() > 120) 
+        {
+            if (!client->is_waiting_for_pong()) {
+                // Phase 1: They have been idle,we Send them a PING to check if they are alive!
+                std::string ping_msg = "PING :ft_irc_server\r\n";
+                client->set_write_buffer(ping_msg);
+                client->set_waiting_for_pong(true);
+            } 
+            else if (current_time - client->get_last_activity() > 180) {
+                // Phase 2: We sent a PING 60 seconds ago and they NEVER answered
+                // Its time to kill the connection!
+                std::cout << "Client FD " << _fds[i].fd << " Ping Timeout. Disconnecting..." << std::endl;
+                _handleClientDisconnection(i);              
+                i--;
+            }
+        }
+    }
+}
+
 void Server::_checkForOutgoingMsg()
 {
     for (size_t i = 0; i < _fds.size(); i++) {
@@ -118,6 +147,7 @@ void Server::run()
 {
     while(true)
     {
+        _checkPingTimeouts();
         _checkForOutgoingMsg();
         int poll_count = poll(_fds.data(), _fds.size(), -1);
         if(-1 == poll_count)
