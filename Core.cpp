@@ -251,7 +251,7 @@ void Core::cmd_user(Client *client, mssg& msg)
     }
 }
 
-void Core::cmd_pong(Client* client, mssg& msg)
+void Core::cmd_pong(Client* client)
 {
     client->update_last_activity();
 }
