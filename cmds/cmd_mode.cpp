@@ -55,6 +55,7 @@ void Core::cmd_mode(Client* client, mssg& msg)
         std::string mode_str = msg.args[1];
         bool add = true;
         size_t arg_idx = 2;
+        int param_count = 0; // Added param_count counter
         
         std::string applied_modes = "";
         std::string applied_args = "";
@@ -87,6 +88,8 @@ void Core::cmd_mode(Client* client, mssg& msg)
             {
                 if (add && arg_idx < msg.args.size())
                 {
+                    if (param_count >= 3) continue; // Check limit
+                    param_count++;                  // Increment
 
                     if (!it->second->get_password().empty()) {
                         client->set_write_buffer("467 " + client->get_nickname() + " " + target_channel + " :Channel key already set\r\n");
@@ -112,6 +115,9 @@ void Core::cmd_mode(Client* client, mssg& msg)
             {
                 if (add && arg_idx < msg.args.size())
                 {
+                    if (param_count >= 3) continue; // Check limit
+                    param_count++;                  // Increment
+
                     int limit = std::atoi(msg.args[arg_idx].c_str());
                     it->second->set_limit(limit);
                     applied_modes += "l";
@@ -128,12 +134,15 @@ void Core::cmd_mode(Client* client, mssg& msg)
             {
                 if (arg_idx < msg.args.size())
                 {
+                    if (param_count >= 3) continue; // Check limit
+                    param_count++;                  // Increment
+
                     std::string target_nick = msg.args[arg_idx];
                     arg_idx++;
 
                     Client* target_client = NULL;
                     std::map<int, Client*>::iterator it_c;
-                    for (it_c = clients.begin(); it_c != clients.end(); it_c++)
+                    for (it_c = clients.begin(); it_c != clients.end(); ++it_c) // Optimized to ++it_c
                     {
                         if (it_c->second->get_nickname() == target_nick)
                         {
