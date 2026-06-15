@@ -81,7 +81,7 @@ bool Core::process_input(int fd, std::string text)
     else if (client->get_is_auth()){ 
         if (parsed.cmd == "JOIN")
             cmd_join(client, parsed);
-        else if (parsed.cmd == "PRIVMSG" || parsed.cmd == "NOTICE")
+        else if (parsed.cmd == "PRIVMSG")
             cmd_privmsg(client, parsed);
         else if (parsed.cmd == "PART")
             cmd_part(client, parsed);
