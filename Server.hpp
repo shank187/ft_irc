@@ -34,6 +34,8 @@ class Server {
         void    _acceptNewClient();
         bool    _handleClientMessage(int fd, char *buffer);
         void    _handleClientDisconnection(size_t &i);
+        void    _checkForOutgoingMsg();
+        void    send_message();
         
     public:
         static bool                 Signal;

@@ -2,6 +2,8 @@
 #define CLIENT_HPP
 
 #include <string>
+#include <ctime>
+
 
 class Client {
 private:
@@ -14,6 +16,9 @@ private:
     bool _hasNickname;
     bool _hasUsername;
     std::string _write_buffer;
+
+    time_t _last_activity;
+    bool _waiting_for_pong;
 public:
 
     Client();
@@ -42,6 +47,11 @@ public:
     void        set_has_password(bool status);
     void        set_realname(std::string r_name);
     void        set_write_buffer(std::string msg);
+
+    time_t get_last_activity() const;
+    void update_last_activity();
+    bool is_waiting_for_pong() const;
+    void set_waiting_for_pong(bool val);
     
 };
 

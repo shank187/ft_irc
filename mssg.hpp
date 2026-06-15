@@ -5,16 +5,14 @@
 #include <string>
 #include <vector>
 
-class mssg{
-    public:
-    std::string                 sender;
-    std::string                 cmd;
-    std::vector<std::string>    args;
-    
-    
-    
-    mssg();
-    ~mssg();
+class mssg
+{
+    public:    
+        std::string                 sender;
+        std::string                 cmd;
+        std::vector<std::string>    args;        
+        mssg();
+        ~mssg();
 };
 
 

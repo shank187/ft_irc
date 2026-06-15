@@ -1,4 +1,6 @@
 #include "Server.hpp"
+#include "Client.hpp"
+#include <cerrno>
 #include <cstddef>
 #include <cstring>
 #include <fcntl.h>
@@ -68,6 +70,10 @@ bool Server::_handleClientMessage(int fd, char *buffer)
     _client_buffers[fd] += buffer;
     size_t pos;
 
+    Client * client = _core.get_client(fd);
+    if(client){
+        client->update_last_activity();
+    }
     while((pos = _client_buffers[fd].find('\n')) != std::string::npos)
     {
         std::string complete_msg = _client_buffers[fd].substr(0, pos + 1);
@@ -84,6 +90,7 @@ bool Server::_handleClientMessage(int fd, char *buffer)
     return true;
 }
 
+    
 void Server::_handleClientDisconnection(size_t &i)
 {
     _core.on_client_disconnect(_fds[i].fd);
@@ -93,20 +100,25 @@ void Server::_handleClientDisconnection(size_t &i)
     i--;
 }
 
+void Server::_checkForOutgoingMsg()
+{
+    for (size_t i = 0; i < _fds.size(); i++) {
+        if (_fds[i].fd != _server_fd) {
+            Client* client = _core.get_client(_fds[i].fd);
+            if (client && !client->get_write_buffer().empty()) {
+                _fds[i].events = POLLIN | POLLOUT;
+            } else {
+                _fds[i].events = POLLIN;
+            }
+        }
+    }
+}
+
 void Server::run()
 {
     while(true)
     {
-        for (size_t i = 0; i < _fds.size(); i++) {
-            if (_fds[i].fd != _server_fd) {
-                Client* client = _core.get_client(_fds[i].fd);
-                if (client && !client->get_write_buffer().empty()) {
-                    _fds[i].events = POLLIN | POLLOUT;
-                } else {
-                    _fds[i].events = POLLIN;
-                }
-            }
-        }
+        _checkForOutgoingMsg();
         int poll_count = poll(_fds.data(), _fds.size(), -1);
         if(-1 == poll_count)
         {
@@ -132,7 +144,9 @@ void Server::run()
                         _handleClientDisconnection(i);
                     else
                         if (!_handleClientMessage(_fds[i].fd, buffer))
+                        {
                             _handleClientDisconnection(i);
+                        }
                 }
             }
             if (_fds[i].revents & POLLOUT)
@@ -145,7 +159,10 @@ void Server::run()
                     if (bytes_sent > 0) {
                         client->erase_from_write_buffer(bytes_sent);
                     } else if (bytes_sent <= 0) {
-                        _handleClientDisconnection(i);
+                        if(bytes_sent == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+                            continue;
+                        else
+                            _handleClientDisconnection(i);
                     }
                 }
             }

@@ -288,6 +288,7 @@ std::vector<std::string> Core::split(const std::string& s, char delimiter)
 }
 
 
+
 bool Core::is_valid_channel_name(const std::string& name)
 {
 

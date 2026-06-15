@@ -1,4 +1,7 @@
 #include "Client.hpp"
+#include <cstddef>
+#include <cstdlib>
+#include <ctime>
 #include <iostream>
 #include <sys/socket.h> // ADD THIS FOR send()
 
@@ -86,18 +89,25 @@ void Client::erase_from_write_buffer(size_t bytes)
 void Client::set_write_buffer(std::string msg)
 {
     _write_buffer += msg;
-    
+}
 
-    // size_t total_sent = 0;
-    // size_t bytes_left = msg.length();
-    // ssize_t n = 0;
+time_t Client::get_last_activity() const
+{
+    return _last_activity;
+}
 
-    // while (total_sent < msg.length())
-    // {
-    //     n = send(this->fd, msg.c_str() + total_sent, bytes_left, 0);
-    //     if (n == -1)
-    //         break;
-    //     total_sent += n;
-    //     bytes_left -= n;
-    // }
+void Client::update_last_activity()
+{
+    _last_activity = time(NULL);
+    _waiting_for_pong = false;
+}
+
+bool Client::is_waiting_for_pong() const
+{
+    return _waiting_for_pong;
+}
+
+void Client::set_waiting_for_pong(bool val)
+{
+    _waiting_for_pong = val;
 }
