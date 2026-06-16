@@ -143,6 +143,22 @@ void Server::_checkForOutgoingMsg()
     }
 }
 
+void Server::send_message(size_t &i)
+{
+    Client* client = _core.get_client(_fds[i].fd);
+    if (client) 
+    {
+        std::string to_send = client->get_write_buffer();
+        ssize_t bytes_sent = send(_fds[i].fd, to_send.c_str(), to_send.length(), 0);                    
+        if (bytes_sent > 0) {
+            client->erase_from_write_buffer(bytes_sent);
+        } else if (bytes_sent <= 0) {
+            if(!(bytes_sent == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)))
+                _handleClientDisconnection(i);
+        }
+    }
+}
+
 void Server::run()
 {
     while(true)
@@ -188,20 +204,7 @@ void Server::run()
                 continue;
             if (_fds[i].revents & POLLOUT)
             {
-                Client* client = _core.get_client(_fds[i].fd);
-                if (client) 
-                {
-                    std::string to_send = client->get_write_buffer();
-                    ssize_t bytes_sent = send(_fds[i].fd, to_send.c_str(), to_send.length(), 0);                    
-                    if (bytes_sent > 0) {
-                        client->erase_from_write_buffer(bytes_sent);
-                    } else if (bytes_sent <= 0) {
-                        if(bytes_sent == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
-                            continue;
-                        else
-                            _handleClientDisconnection(i);
-                    }
-                }
+                send_message(i);
             }
         }
     }

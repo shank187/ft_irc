@@ -35,7 +35,7 @@ class Server {
         bool    _handleClientMessage(int fd, char *buffer);
         void    _handleClientDisconnection(size_t &i);
         void    _checkForOutgoingMsg();
-        void    send_message();
+        void    send_message(size_t &i);
         void    _checkPingTimeouts();
     public:
         static bool                 Signal;

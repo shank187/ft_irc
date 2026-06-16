@@ -102,7 +102,7 @@ bool Core::process_input(int fd, std::string& text)
     }
     else if(!parsed.cmd.empty() && parsed.cmd != "PASS" && parsed.cmd != "NICK" && parsed.cmd != "USER")
     {
-        std::cout << YELLOW<<"ignored cmd:" << RESET<< parsed.cmd << std::endl ;
+        std::cout << YELLOW<<"ignored cmd: " << RESET<< parsed.cmd << std::endl ;
         client->set_write_buffer("451 :You have not registered\r\n");
     }
     return true;
