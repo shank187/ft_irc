@@ -86,6 +86,8 @@ void Core::cmd_join(Client* client, mssg& msg) {
         else
         {
             channel = it->second;
+            if (channel->is_member(client))
+                continue;
 
             if (channel->is_invite_only() && !channel->is_invited(client))
             {
