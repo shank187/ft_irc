@@ -13,7 +13,11 @@ void Core::cmd_mode(Client* client, mssg& msg)
         client->set_write_buffer("461 " + client->get_nickname() + " MODE :Not enough parameters\r\n");
         return ;
     }
-
+    if (msg.args[0].empty())
+    {
+        client->set_write_buffer("461 " + client->get_nickname() + " MODE :Not enough parameters\r\n");
+        return;
+    }
     std::string target_channel = msg.args[0];
 
     if (target_channel[0] != '#' && target_channel[0] != '&') 

@@ -76,7 +76,7 @@ void Core::cmd_kick(Client* client, mssg& msg)
 
         if (channel->is_member(target_client))
         {
-            std::string kick_msg = ":" + client->get_nickname() + " KICK " + current_channel_name + " " + target_nickname + " :" + reason + "\r\n";
+            std::string kick_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@127.0.0.1 KICK " + current_channel_name + " " + target_nickname + " :" + reason + "\r\n";
             channel->broadcast(kick_msg, NULL);
 
 
