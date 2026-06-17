@@ -73,7 +73,7 @@ bool Core::process_input(int fd, std::string& text)
     }
     if(parsed.cmd == "CAP" || parsed.cmd == "WHOIS" || parsed.cmd == "WHO") return true;
     if(parsed.cmd == "PASS")
-        (cmd_pass(client, parsed));
+        return(cmd_pass(client, parsed));
     else if(parsed.cmd == "NICK")
         (cmd_nick(client, parsed));
     else if(parsed.cmd == "USER")

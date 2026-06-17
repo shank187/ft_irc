@@ -109,18 +109,25 @@ void Server::_checkPingTimeouts()
 
         Client* client = _core.get_client(_fds[i].fd);
         if (!client) continue;
+        if (!client->get_is_auth() && (current_time - client->get_last_activity() > 60))
+        {
+            // kicking users if they havent logged in after 60 seconds of connecting
+            _handleClientDisconnection(i);
+            i--;
+            continue;
+        }
         // If the client has been silent for 2 minutes
         if (current_time - client->get_last_activity() > 120) 
         {
             if (!client->is_waiting_for_pong()) {
-                // Phase 1: They have been idle,we Send them a PING to check if they are alive!
+                // Phase 1: They have been idle,we Send them a PING to check if they are alive
                 std::string ping_msg = "PING :ft_irc_server\r\n";
                 client->set_write_buffer(ping_msg);
                 client->set_waiting_for_pong(true);
             } 
             else if (current_time - client->get_last_activity() > 180) {
                 // Phase 2: We sent a PING 60 seconds ago and they NEVER answered
-                // Its time to kill the connection!
+                // Its time to kill the connection
                 std::cout << "Client FD " << _fds[i].fd << " Ping Timeout. Disconnecting..." << std::endl;
                 _handleClientDisconnection(i);              
                 i--;
@@ -187,7 +194,6 @@ void Server::run()
                     char buffer[1024];
                     std::memset(buffer, 0, sizeof(buffer));
                     int byte_received = recv(_fds[i].fd, buffer, sizeof(buffer)-1, 0);
-                    
                     if(byte_received <= 0)
                     {
                         is_disconnected = true;
