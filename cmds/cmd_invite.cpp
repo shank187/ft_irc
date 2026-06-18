@@ -49,7 +49,7 @@ void Core::cmd_invite(Client* client, mssg& msg)
                     
                     client->set_write_buffer("341 " + client->get_nickname() + " " + target_nickname + " " + target_channel + "\r\n");
                     
-                    std::string invite_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@127.0.0.1 INVITE " + target_nickname + " :" + target_channel + "\r\n";
+                    std::string invite_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " INVITE " + target_nickname + " :" + target_channel + "\r\n";
                     target_client->set_write_buffer(invite_msg);
                 }
             }

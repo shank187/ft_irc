@@ -177,7 +177,7 @@ void Core::cmd_mode(Client* client, mssg& msg)
 
         if (!applied_modes.empty() && applied_modes != "+" && applied_modes != "-")
         {
-            std::string mode_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@127.0.0.1 MODE " + target_channel + " " + applied_modes + applied_args + "\r\n";
+            std::string mode_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " MODE " + target_channel + " " + applied_modes + applied_args + "\r\n";
             it->second->broadcast(mode_msg, NULL);
         }
     } 

@@ -44,7 +44,7 @@ void Core::cmd_privmsg(Client* client, mssg& msg)
                     continue;
                 }
 
-                std::string full_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@127.0.0.1 PRIVMSG " + target + " :" + text + "\r\n";
+                std::string full_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " PRIVMSG " + target + " :" + text + "\r\n";
                 it->second->broadcast(full_msg, client);
             } 
             else
@@ -66,7 +66,7 @@ void Core::cmd_privmsg(Client* client, mssg& msg)
 
             if (target_client)
             {
-                std::string full_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@127.0.0.1 PRIVMSG " + target + " :" + text + "\r\n";
+                std::string full_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " PRIVMSG " + target + " :" + text + "\r\n";
                 target_client->set_write_buffer(full_msg);
             }
             else

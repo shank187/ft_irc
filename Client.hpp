@@ -12,6 +12,7 @@ private:
     std::string nickname;
     std::string username;
     std::string realname;
+    std::string _hostname;
     bool _hasPassword;
     bool _hasNickname;
     bool _hasUsername;
@@ -34,6 +35,9 @@ public:
     std::string get_username() const;
     std::string get_write_buffer();
     bool        get_is_auth() const;
+
+    std::string get_hostname() const;
+    void        set_hostname(const std::string& hostname);
 
     bool        get_has_password() const;
     bool        get_has_nickname() const;

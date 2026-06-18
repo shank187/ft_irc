@@ -62,6 +62,13 @@ void Server::_acceptNewClient()
         client_pollfd.revents = 0;
         _fds.push_back(client_pollfd);
         _core.on_client_connect(client_fd);
+
+        Client* new_client = _core.get_client(client_fd);
+        if (new_client)
+        {
+            std::string extracted_ip = inet_ntoa(client_address.sin_addr);
+            new_client->set_hostname(extracted_ip);
+        }
     }
 }
 

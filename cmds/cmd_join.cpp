@@ -21,7 +21,7 @@ void Core::cmd_join(Client* client, mssg& msg) {
         {
             if (it->second->is_member(client))
             {
-                std::string part_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@127.0.0.1 PART " + it->first + " :Left all channels\r\n";
+                std::string part_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " PART " + it->first + " :Left all channels\r\n";
                 it->second->broadcast(part_msg, NULL);
 
                 it->second->remove_client(client);
@@ -120,7 +120,7 @@ void Core::cmd_join(Client* client, mssg& msg) {
         if (channel->is_invited(client))
             channel->remove_invite(client);
     
-        std::string join_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@127.0.0.1 JOIN :" + chan_name + "\r\n";
+        std::string join_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " JOIN :" + chan_name + "\r\n";
         channel->broadcast(join_msg, NULL);
 
         if (!channel->get_topic().empty())

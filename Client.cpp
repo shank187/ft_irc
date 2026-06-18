@@ -111,3 +111,15 @@ void Client::set_waiting_for_pong(bool val)
 {
     _waiting_for_pong = val;
 }
+
+
+std::string Client::get_hostname() const
+{
+    return this->_hostname;
+}
+
+
+void Client::set_hostname(const std::string& hostname)
+{
+    this->_hostname = hostname;
+}
