@@ -80,17 +80,7 @@ int main(int ac, char **av) {
                     if (!dt.empty() && dt[dt.length() - 1] == '\n')
                         dt.erase(dt.length() - 1);
 
-                    std::string target;
-                    if (!incoming_target.empty() && incoming_target[0] == '#') 
-                    {
-                        target = incoming_target;
-                    }
-                    else 
-                    {
-                        target = sender_nick;
-                    }
-
-                    std::string reply = "PRIVMSG " + target + " :Server time: " + dt + "\r\n";
+                    std::string reply = "PRIVMSG " + sender_nick + " :Server time: " + dt + "\r\n";
                     send_all(sock, reply);
                 }
             }
