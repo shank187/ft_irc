@@ -201,8 +201,8 @@ void Server::run()
                     char buffer[1024];
                     std::memset(buffer, 0, sizeof(buffer));
                     int byte_received = recv(_fds[i].fd, buffer, sizeof(buffer)-1, 0);
-                    if(byte_received <= 0)
-                    {
+                    if(byte_received == 0 || (byte_received == -1 && errno != EAGAIN
+                    && errno != EWOULDBLOCK)) {
                         is_disconnected = true;
                         _handleClientDisconnection(i);
                     }
