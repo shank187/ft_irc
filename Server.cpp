@@ -43,6 +43,10 @@ void Server::init()
     server_pollfd.events = POLLIN;
     server_pollfd.revents = 0;
     _fds.push_back(server_pollfd);
+    _dummy_fd - open("/dev/null", O_RDONLY);
+    if(_dummy_fd == -1){
+        throw std::runtime_error("Failed to ope dummy fd");
+    }
 }
 
 void Server::_acceptNewClient()
@@ -68,6 +72,20 @@ void Server::_acceptNewClient()
         {
             std::string extracted_ip = inet_ntoa(client_address.sin_addr);
             new_client->set_hostname(extracted_ip);
+        }
+    }
+    else{
+        if (errno == EMFILE || errno == ENFILE){
+            std::cerr << RED << "CRITICAL: Server reached maximum file descriptor limit!" << RESET << std::endl;
+            close(_dummy_fd);
+            int drop_fd = accept(_server_fd, NULL, NULL);
+            if(drop_fd != -1){
+                close(drop_fd);
+            }
+            _dummy_fd - open("/dev/null", O_RDONLY);
+        }
+        else{
+            std::cerr << RED << "Error accepting new connection." << RESET << std::endl;
         }
     }
 }
@@ -192,6 +210,12 @@ void Server::run()
         for(size_t i = 0; i < _fds.size(); i++)
         {
             bool is_disconnected = false;
+            if (_fds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
+            {
+                std::cout << YELLOW << "Client FD " << _fds[i].fd << " hung up or encountered an error." << RESET << std::endl;
+                _handleClientDisconnection(i);
+                continue;
+            }
             if(_fds[i].revents & POLLIN)
             {
                 if(_fds[i].fd == _server_fd)
