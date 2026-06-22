@@ -43,7 +43,7 @@ void Server::init()
     server_pollfd.events = POLLIN;
     server_pollfd.revents = 0;
     _fds.push_back(server_pollfd);
-    _dummy_fd - open("/dev/null", O_RDONLY);
+    _dummy_fd = open("/dev/null", O_RDONLY);
     if(_dummy_fd == -1){
         throw std::runtime_error("Failed to ope dummy fd");
     }
@@ -82,7 +82,7 @@ void Server::_acceptNewClient()
             if(drop_fd != -1){
                 close(drop_fd);
             }
-            _dummy_fd - open("/dev/null", O_RDONLY);
+            _dummy_fd = open("/dev/null", O_RDONLY);
         }
         else{
             std::cerr << RED << "Error accepting new connection." << RESET << std::endl;
