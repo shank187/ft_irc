@@ -1,8 +1,6 @@
 #include "../Core.hpp"
 
 
-// Exemple (Wa7d li kayn):  "INVITE ali #1337\r\n"
-
 void Core::cmd_invite(Client* client, mssg& msg)
 {
     if (msg.args.size() < 2)

@@ -1,8 +1,5 @@
 #include "../Core.hpp"
 
-// Exemple 1 (Bla reason):  "PART #1337\r\n"
-// Exemple 2 (B reason):    "PART #1337 :Mcha 3liya l'7al ghan-mchi n3es\r\n"
-// Exemple 3 (Multiples):   "PART #1337,#42 :Bye bye\r\n"
 
 void Core::cmd_part(Client* client, mssg& msg)
 {

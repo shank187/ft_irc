@@ -1,10 +1,6 @@
 #include "../Core.hpp"
 
 
-// Exemple 1 (Chouf modes): "MODE #1337\r\n"
-// Exemple 2 (Zid mode):    "MODE #1337 +i\r\n"
-// Exemple 3 (7iyd mode):   "MODE #1337 -m\r\n"
-// Exemple 4 (Combo args):  "MODE #1337 +ok-l ali my_password\r\n"
 
 void Core::cmd_mode(Client* client, mssg& msg)
 {
@@ -59,7 +55,7 @@ void Core::cmd_mode(Client* client, mssg& msg)
         std::string mode_str = msg.args[1];
         bool add = true;
         size_t arg_idx = 2;
-        int param_count = 0; // Added param_count counter
+        int param_count = 0;
         
         std::string applied_modes = "";
         std::string applied_args = "";

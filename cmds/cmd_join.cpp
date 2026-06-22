@@ -1,10 +1,6 @@
 #include "../Core.hpp"
 
-//////////////////////////////////args ->
 
-// Exemple 1 (Bla pass):    "JOIN #1337\r\n"
-// Exemple 2 (B pass):      "JOIN #1337 secret_pass\r\n"
-// Exemple 3 (Multiples):   "JOIN #1337,#42 pass1,pass2\r\n"
 
 void Core::cmd_join(Client* client, mssg& msg) {
     if (msg.args.empty())

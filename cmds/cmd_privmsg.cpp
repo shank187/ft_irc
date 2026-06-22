@@ -1,7 +1,6 @@
 #include "../Core.hpp"
 
-// Exemple 1 (L'Channel):   "PRIVMSG #1337 :Salam a drari dyal l'bit!\r\n"
-// Exemple 2 (L'User):      "PRIVMSG omar :Nadi a sat fin wselti?\r\n"
+
 
 
 void Core::cmd_privmsg(Client* client, mssg& msg)

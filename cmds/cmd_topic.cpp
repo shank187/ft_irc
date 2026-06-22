@@ -2,10 +2,6 @@
 
 
 
-// Exemple 1 (Chouf topic): "TOPIC #1337\r\n"
-// Exemple 2 (Bdel topic):  "TOPIC #1337 :Projet ft_irc 9reb y-ssali!\r\n"
-// Exemple 3 (Msse7 topic): "TOPIC #1337 :\r\n"
-
 void Core::cmd_topic(Client* client, mssg& msg)
 {
     if (msg.args.empty())

@@ -1,10 +1,6 @@
 #include "../Core.hpp"
 
 
-// Exemple 1 (Bla reason):  "KICK #1337 omar\r\n"
-// Exemple 2 (B reason):    "KICK #1337 omar :Zrebti w khsserti l'hdra\r\n"
-
-
 void Core::cmd_kick(Client* client, mssg& msg)
 {
     if (msg.args.size() < 2)
