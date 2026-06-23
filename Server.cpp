@@ -17,7 +17,11 @@ Server::Server(int port, const std::string & password) : _port(port), _pw(passwo
     _core.set_password(_pw);
 }
 
-Server::~Server() {}
+Server::~Server() {
+    if (_dummy_fd != -1) {
+        close(_dummy_fd);
+    }
+}
 
 void Server::init()
 {
