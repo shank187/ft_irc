@@ -21,6 +21,12 @@ Server::~Server() {
     if (_dummy_fd != -1) {
         close(_dummy_fd);
     }
+    if (_server_fd != -1) {
+        close(_server_fd);
+    }
+    for (size_t i = 0; i < _fds.size(); i++) {
+        close(_fds[i].fd);
+    }
 }
 
 void Server::init()
@@ -37,9 +43,9 @@ void Server::init()
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(_port);
-    if(bind(_server_fd, (struct sockaddr *)& address, sizeof(address)) == -1)
+    if(bind(_server_fd, (struct sockaddr *) &address, sizeof(address)) == -1)
         throw (std::runtime_error("failed to bind to port."));
-    if(listen(_server_fd, 10) == -1)
+    if(listen(_server_fd, SOMAXCONN) == -1)
         throw (std::runtime_error("failed to listen."));
     std::cout << GREEN << "Success! The server is listening on port " << _port << RESET << std::endl;
     struct pollfd server_pollfd;
@@ -63,7 +69,6 @@ void Server::_acceptNewClient()
     if (client_fd != -1)
     {
         fcntl(client_fd, F_SETFL, O_NONBLOCK);
-        
         struct pollfd client_pollfd;
         client_pollfd.fd = client_fd;
         client_pollfd.events = POLLIN;
@@ -202,6 +207,7 @@ void Server::run()
         _checkPingTimeouts();
         _checkForOutgoingMsg();
         int poll_count = poll(_fds.data(), _fds.size(), 5000);
+
         if(-1 == poll_count)
         {
             if(Server::Signal == true)
