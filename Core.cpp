@@ -111,6 +111,7 @@ void Core::cmd_quit(Client* client, mssg& msg)
     if (!msg.args.empty()) {
         reason = msg.args[0]; 
     }
+    client->set_has_quit(true);
     
     client->set_write_buffer("ERROR :Closing Link: " + client->get_nickname() + " (" + reason + ")\r\n");
     

@@ -7,12 +7,12 @@
 // 1. Default Constructor
 Client::Client() : fd(-1), buffer(""), nickname(""), username(""), 
                 _hasPassword(false), _hasNickname(false), _hasUsername(false),
-                _last_activity(time(NULL)), _waiting_for_pong(false) {} // <-- Added initializations
+                _last_activity(time(NULL)), _waiting_for_pong(false) , _has_quit(false){}
 
 // 2. Parameterized Constructor
 Client::Client(int client_fd) : fd(client_fd), buffer(""), nickname(""), username(""), 
                                 _hasPassword(false), _hasNickname(false), _hasUsername(false),
-                                _last_activity(time(NULL)), _waiting_for_pong(false) {} // <-- Added initializations
+                                _last_activity(time(NULL)), _waiting_for_pong(false) , _has_quit(false){} 
 Client::~Client() {}
 
 Client::Client(const Client& src) {
@@ -39,6 +39,7 @@ int Client::get_fd() const { return fd; }
 std::string Client::get_buffer() const { return buffer; }
 std::string Client::get_nickname() const { return nickname; }
 std::string Client::get_username() const { return username; }
+bool Client::get_has_quit() const { return _has_quit; }
 
 bool Client::get_has_password() const { return _hasPassword; }
 
@@ -57,6 +58,12 @@ void Client::extract_buffer(size_t pos) { buffer.erase(0, pos); }
 // Step 1 of Registration
 void Client::set_has_password(bool status) { 
     _hasPassword = status; 
+}
+
+
+void        Client::set_has_quit(bool status)
+{
+    _has_quit = status;
 }
 
 // Step 2 of Registration

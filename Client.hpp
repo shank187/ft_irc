@@ -20,6 +20,7 @@ private:
 
     time_t _last_activity;
     bool _waiting_for_pong;
+    bool _has_quit;
 public:
 
     Client();
@@ -35,6 +36,8 @@ public:
     std::string get_username() const;
     std::string get_write_buffer();
     bool        get_is_auth() const;
+    bool        get_has_quit() const;
+
 
     std::string get_hostname() const;
     void        set_hostname(const std::string& hostname);
@@ -51,6 +54,7 @@ public:
     void        set_has_password(bool status);
     void        set_realname(std::string r_name);
     void        set_write_buffer(std::string msg);
+    void        set_has_quit(bool);
 
     time_t get_last_activity() const;
     void update_last_activity();
