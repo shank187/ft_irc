@@ -1,6 +1,5 @@
 #include "../Core.hpp"
-
-
+#include <iostream>
 
 void Core::cmd_topic(Client* client, mssg& msg)
 {
@@ -9,6 +8,7 @@ void Core::cmd_topic(Client* client, mssg& msg)
         client->set_write_buffer("461 " + client->get_nickname() + " TOPIC :Not enough parameters\r\n");
         return ;
     }
+
     std::string target_channel = msg.args[0];
     std::map<std::string, Channel*>::iterator it = channels.find(target_channel);
 
@@ -16,6 +16,7 @@ void Core::cmd_topic(Client* client, mssg& msg)
     {
         if (it->second->is_member(client))
         {
+
             if (msg.args.size() == 1)
             {
                 if (it->second->get_topic().empty())
@@ -26,16 +27,30 @@ void Core::cmd_topic(Client* client, mssg& msg)
             else
             {
                 bool can_change = true;
+            
                 if (it->second->is_topic_restricted() && !it->second->is_operator(client))
                     can_change = false;
 
                 if (can_change)
                 {
-                    std::string new_topic = msg.args[1];
-                    it->second->set_topic(new_topic);
 
-                    std::string topic_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " TOPIC " + target_channel + " :" + new_topic + "\r\n";
-                    it->second->broadcast(topic_msg, NULL);
+                    if (msg.args[1] == ":")
+                    {
+                        it->second->set_topic("");
+
+                        std::string topic_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " TOPIC " + target_channel + " :\r\n";
+                        it->second->broadcast(topic_msg, NULL);
+                    }
+
+                    else
+                    {
+                        std::string new_topic = msg.args[1];
+
+                        it->second->set_topic(new_topic);
+
+                        std::string topic_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " TOPIC " + target_channel + " :" + new_topic + "\r\n";
+                        it->second->broadcast(topic_msg, NULL);
+                    }
                 }
                 else
                 {

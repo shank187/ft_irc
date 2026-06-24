@@ -38,6 +38,8 @@ mssg Core::parse_msg(std::string& line)
             
         if (line[i] == ':') {
             msg.args.push_back(line.substr(i+1));
+            if(msg.cmd == "TOPIC" && msg.args.size() >= 2 && msg.args[1] == "")
+                msg.args[1] = ":";
             break;
         } else {
             size_t sp_index = line.find(' ', i);
