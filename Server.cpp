@@ -122,6 +122,14 @@ bool Server::_handleClientMessage(int fd, char *buffer)
     
 void Server::_handleClientDisconnection(size_t &i)
 {
+    Client * client =  _core.get_client(_fds[i].fd);
+
+    if(client && client->get_is_auth() && !client->get_has_quit())
+    {
+        std::string quit_msg = ":" + client->get_nickname() + " QUIT :Connection closed (Hangup or Timeout)\r\n";
+        _core.broadcast_global(client, quit_msg, false);
+    }
+
     _core.on_client_disconnect(_fds[i].fd);
     _client_buffers.erase(_fds[i].fd); 
     close(_fds[i].fd);
