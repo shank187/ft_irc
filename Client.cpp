@@ -7,12 +7,12 @@
 // 1. Default Constructor
 Client::Client() : fd(-1), buffer(""), nickname(""), username(""), 
                 _hasPassword(false), _hasNickname(false), _hasUsername(false),
-                _last_activity(time(NULL)), _waiting_for_pong(false) , _has_quit(false){}
+                _last_activity(time(NULL)), _waiting_for_pong(false) , _has_quit(false), _disconnect_pending(false){}
 
 // 2. Parameterized Constructor
 Client::Client(int client_fd) : fd(client_fd), buffer(""), nickname(""), username(""), 
                                 _hasPassword(false), _hasNickname(false), _hasUsername(false),
-                                _last_activity(time(NULL)), _waiting_for_pong(false) , _has_quit(false){} 
+                                _last_activity(time(NULL)), _waiting_for_pong(false) , _has_quit(false), _disconnect_pending(false){} 
 Client::~Client() {}
 
 Client::Client(const Client& src) {
@@ -45,6 +45,7 @@ bool Client::get_has_password() const { return _hasPassword; }
 
 bool Client::get_has_nickname() const { return _hasNickname; }
 bool Client::get_has_username() const { return _hasUsername; }
+bool Client::get_disconnect_pending() const { return _disconnect_pending; }
 
 bool Client::get_is_auth() const {
     return (_hasPassword && _hasNickname && _hasUsername);
@@ -129,4 +130,9 @@ std::string Client::get_hostname() const
 void Client::set_hostname(const std::string& hostname)
 {
     this->_hostname = hostname;
+}
+
+void Client::set_disconnect_pending(bool status)
+{
+    _disconnect_pending = status;
 }

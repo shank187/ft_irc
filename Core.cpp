@@ -121,10 +121,10 @@ void Core::cmd_quit(Client* client, mssg& msg)
     std::cout << YELLOW << "[Server] Client FD " << client->get_fd() << " issued QUIT (" << reason << ")" << RESET << std::endl;
 }
 
-bool Core::cmd_pass(Client *client, mssg& msg)
+void Core::cmd_pass(Client *client, mssg& msg)
 {
     if (client->get_has_password())
-        return true;
+        return;
 
     std::string nick = client->get_nickname().empty() ? "*" : client->get_nickname();
 
@@ -139,15 +139,14 @@ bool Core::cmd_pass(Client *client, mssg& msg)
         {
             client->set_write_buffer(ERR_PASSWDMISMATCH(nick));
             std::cout << YELLOW << "Client fd: " << client->get_fd() << ", has entered an incorrect pw." << RESET << std::endl;
-            return false;
+            client->set_disconnect_pending(true);
         }
     }
     else
     {
         client->set_write_buffer(ERR_NEEDMOREPARAMS(nick, "PASS"));
-        return false;
+        client->set_disconnect_pending(true);
     }
-    return true;
 }
 
 bool Core::validate_nickname(const std::string &nick)

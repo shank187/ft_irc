@@ -75,11 +75,11 @@ bool Core::process_input(int fd, std::string& text)
     }
     if(parsed.cmd == "CAP" || parsed.cmd == "WHOIS" || parsed.cmd == "WHO") return true;
     if(parsed.cmd == "PASS")
-        return(cmd_pass(client, parsed));
+        cmd_pass(client, parsed);
     else if(parsed.cmd == "NICK")
-        (cmd_nick(client, parsed));
+        cmd_nick(client, parsed);
     else if(parsed.cmd == "USER")
-        (cmd_user(client, parsed));
+        cmd_user(client, parsed);
     else if (client->get_is_auth()){ 
         if (parsed.cmd == "JOIN")
             cmd_join(client, parsed);

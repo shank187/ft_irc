@@ -21,6 +21,7 @@ private:
     time_t _last_activity;
     bool _waiting_for_pong;
     bool _has_quit;
+    bool _disconnect_pending;
 public:
 
     Client();
@@ -45,6 +46,7 @@ public:
     bool        get_has_password() const;
     bool        get_has_nickname() const;
     bool        get_has_username() const;
+    bool        get_disconnect_pending() const;
     void        append_buffer(const std::string& data);
     void        extract_buffer(size_t pos);
     void        erase_from_write_buffer(size_t bytes);
@@ -55,6 +57,7 @@ public:
     void        set_realname(std::string r_name);
     void        set_write_buffer(std::string msg);
     void        set_has_quit(bool);
+    void        set_disconnect_pending(bool);
 
     time_t get_last_activity() const;
     void update_last_activity();

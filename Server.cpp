@@ -199,6 +199,10 @@ void Server::send_message(size_t &i)
         ssize_t bytes_sent = send(_fds[i].fd, to_send.c_str(), to_send.length(), 0);                    
         if (bytes_sent > 0) {
             client->erase_from_write_buffer(bytes_sent);
+        if (client->get_write_buffer().empty() && client->get_disconnect_pending()) {
+            std::cout << "Buffer empty. Executing deferred kick for FD " << _fds[i].fd << std::endl;
+            _handleClientDisconnection(i);
+        }
         } else if (bytes_sent <= 0) {
             if(!(bytes_sent == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)))
                 _handleClientDisconnection(i);
