@@ -50,7 +50,7 @@ void Core::cmd_join(Client* client, mssg& msg) {
         std::string chan_name = channels_to_join[i];
         if (!is_valid_channel_name(chan_name))
         {
-            client->set_write_buffer(":localhost 403 " + client->get_nickname() + " " + chan_name + " :No such channel (Invalid name)\r\n");
+            client->set_write_buffer(":localhost 403 " + client->get_nickname() + " " + chan_name + " :No such channel\r\n");
             continue;
         }
 
@@ -118,6 +118,8 @@ void Core::cmd_join(Client* client, mssg& msg) {
 
         if (!channel->get_topic().empty())
             client->set_write_buffer(":localhost 332 " + client->get_nickname() + " " + chan_name + " :" + channel->get_topic() + "\r\n");
+        else
+            client->set_write_buffer(":localhost 331 " + client->get_nickname() + " " + chan_name + " :No topic is set\r\n");
 
 
         //chanel list numbers !!!!!!!!!!11
@@ -150,6 +152,6 @@ void Core::cmd_join(Client* client, mssg& msg) {
             client->set_write_buffer(base_msg + names_list + "\r\n");
         }
         
-        client->set_write_buffer(":localhost 366 " + client->get_nickname() + " " + chan_name + " :End of /NAMES list\r\n");
+        client->set_write_buffer(":localhost 366 " + client->get_nickname() + " " + chan_name + " :End of NAMES list\r\n");
     }
 }

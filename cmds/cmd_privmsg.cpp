@@ -19,7 +19,7 @@ void Core::cmd_privmsg(Client* client, mssg& msg)
 
     if (targets.size() > 10) 
     {
-        client->set_write_buffer(":localhost 407 " + client->get_nickname() + " " + msg.args[0] + " :Too many recipients.\r\n");
+        client->set_write_buffer(":localhost 407 " + client->get_nickname() + " " + msg.args[0] + " :Too many recipients\r\n");
         return;
     }
 

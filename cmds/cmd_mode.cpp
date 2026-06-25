@@ -22,7 +22,7 @@ void Core::cmd_mode(Client* client, mssg& msg)
             return; 
         } 
         else {
-            client->set_write_buffer(":localhost 502 " + client->get_nickname() + " :Cant change mode for other users\r\n");
+            client->set_write_buffer(":localhost 502 " + client->get_nickname() + " :Cannot change mode for other users\r\n");
             return;
         }
     }
@@ -165,7 +165,7 @@ void Core::cmd_mode(Client* client, mssg& msg)
                 }
             }
             else
-                client->set_write_buffer(":localhost 472 " + client->get_nickname() + " " + c + " :is unknown mode char to me\r\n");
+                client->set_write_buffer(":localhost 472 " + client->get_nickname() + " " + c + " :is unknown mode char to me for " + target_channel + "\r\n");
         }
 
         if (!applied_modes.empty() && applied_modes != "+" && applied_modes != "-")
