@@ -42,6 +42,7 @@ public:
     void        cmd_invite(Client* client, mssg& msg);
     void        cmd_topic(Client* client, mssg& msg);
     void        cmd_mode(Client* client, mssg& msg);
+    void        cmd_notice(Client* client, mssg& msg);
 
     
     void        cmd_ping(Client* client, mssg& msg);
