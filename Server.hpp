@@ -31,7 +31,6 @@ class Server {
         std::vector<struct pollfd>  _fds;
         std::map<int, std::string>      _client_buffers;
         Core                        _core;
-        int                         _dummy_fd;
         
         void    _acceptNewClient();
         bool    _handleClientMessage(int fd, char *buffer);

@@ -1,6 +1,5 @@
 #include "Server.hpp"
 #include "Client.hpp"
-#include <cerrno>
 #include <cstddef>
 #include <cstring>
 #include <fcntl.h>
@@ -18,10 +17,6 @@ Server::Server(int port, const std::string & password) : _port(port), _pw(passwo
 }
 
 Server::~Server() {
-    if (_dummy_fd != -1) {
-        close(_dummy_fd);
-        _dummy_fd = -1;
-    }
     for (size_t i = 0; i < _fds.size(); i++) {
         close(_fds[i].fd);
     }
@@ -51,10 +46,6 @@ void Server::init()
     server_pollfd.events = POLLIN;
     server_pollfd.revents = 0;
     _fds.push_back(server_pollfd);
-    _dummy_fd = open("/dev/null", O_RDONLY);
-    if(_dummy_fd == -1){
-        throw std::runtime_error("Failed to ope dummy fd");
-    }
 }
 
 void Server::_acceptNewClient()
@@ -82,18 +73,8 @@ void Server::_acceptNewClient()
         }
     }
     else{
-        if (errno == EMFILE || errno == ENFILE){
-            std::cerr << RED << "CRITICAL: Server reached maximum file descriptor limit!" << RESET << std::endl;
-            close(_dummy_fd);
-            int drop_fd = accept(_server_fd, NULL, NULL);
-            if(drop_fd != -1){
-                close(drop_fd);
-            }
-            _dummy_fd = open("/dev/null", O_RDONLY);
-        }
-        else{
+
             std::cerr << RED << "Error accepting new connection." << RESET << std::endl;
-        }
     }
 }
 
@@ -122,7 +103,6 @@ bool Server::_handleClientMessage(int fd, char *buffer)
     return true;
 }
 
-    
 void Server::_handleClientDisconnection(size_t &i)
 {
     Client * client =  _core.get_client(_fds[i].fd);
