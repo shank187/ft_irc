@@ -1,11 +1,10 @@
 #include "../Core.hpp"
 
-
 void Core::cmd_part(Client* client, mssg& msg)
 {
     if (msg.args.size() < 1)
     {
-        client->set_write_buffer("461 " + client->get_nickname() + " PART :Not enough parameters\r\n");
+        client->set_write_buffer(":localhost 461 " + client->get_nickname() + " PART :Not enough parameters\r\n");
         return ;
     }
     
@@ -39,9 +38,9 @@ void Core::cmd_part(Client* client, mssg& msg)
                 }
             }
             else
-                client->set_write_buffer("442 " + client->get_nickname() + " " + target + " :You're not on that channel\r\n");
+                client->set_write_buffer(":localhost 442 " + client->get_nickname() + " " + target + " :You're not on that channel\r\n");
         } 
         else
-            client->set_write_buffer("403 " + client->get_nickname() + " " + target + " :No such channel\r\n");
+            client->set_write_buffer(":localhost 403 " + client->get_nickname() + " " + target + " :No such channel\r\n");
     }
 }

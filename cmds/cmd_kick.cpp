@@ -1,20 +1,21 @@
 #include "../Core.hpp"
-
+#include <iostream>
 
 void Core::cmd_kick(Client* client, mssg& msg)
 {
     if (msg.args.size() < 2)
     {
-       client->set_write_buffer("461 " + client->get_nickname() + " KICK :Not enough parameters\r\n");
+       client->set_write_buffer(":localhost 461 " + client->get_nickname() + " KICK :Not enough parameters\r\n");
        return ;
     }
 
     std::vector<std::string> target_channels = split(msg.args[0], ',');
     std::vector<std::string> targets = split(msg.args[1], ',');
-    
+
+
     if (target_channels.size() != 1 && target_channels.size() != targets.size())
     {
-        client->set_write_buffer("461 " + client->get_nickname() + " KICK :Not enough parameters\r\n");
+        client->set_write_buffer(":localhost 461 " + client->get_nickname() + " KICK :Not enough parameters\r\n");
         return;
     }
 
@@ -35,7 +36,7 @@ void Core::cmd_kick(Client* client, mssg& msg)
         std::map<std::string, Channel*>::iterator it = channels.find(current_channel_name);
         if (it == channels.end())
         {
-            client->set_write_buffer("403 " + client->get_nickname() + " " + current_channel_name + " :No such channel\r\n");
+            client->set_write_buffer(":localhost 403 " + client->get_nickname() + " " + current_channel_name + " :No such channel\r\n");
             continue;
         }
 
@@ -43,13 +44,13 @@ void Core::cmd_kick(Client* client, mssg& msg)
 
         if (!channel->is_member(client))
         {
-            client->set_write_buffer("442 " + client->get_nickname() + " " + current_channel_name + " :You're not on that channel\r\n");
+            client->set_write_buffer(":localhost 442 " + client->get_nickname() + " " + current_channel_name + " :You're not on that channel\r\n");
             continue;
         }
 
-        if (!channel->is_operator(client))
+        if (!channel->is_operator(client) && target_nickname != client->get_nickname())
         {
-            client->set_write_buffer("482 " + client->get_nickname() + " " + current_channel_name + " :You're not channel operator\r\n");
+            client->set_write_buffer(":localhost 482 " + client->get_nickname() + " " + current_channel_name + " :You're not channel operator\r\n");
             continue;
         }
 
@@ -66,7 +67,7 @@ void Core::cmd_kick(Client* client, mssg& msg)
 
         if (target_client == NULL)
         {
-            client->set_write_buffer("401 " + client->get_nickname() + " " + target_nickname + " :No such nick/channel\r\n");
+            client->set_write_buffer(":localhost 401 " + client->get_nickname() + " " + target_nickname + " :No such nick/channel\r\n");
             continue;
         }
 
@@ -74,7 +75,6 @@ void Core::cmd_kick(Client* client, mssg& msg)
         {
             std::string kick_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " KICK " + current_channel_name + " " + target_nickname + " :" + reason + "\r\n";
             channel->broadcast(kick_msg, NULL);
-
 
             channel->remove_client(target_client);
             if (channel->is_operator(target_client))
@@ -88,7 +88,7 @@ void Core::cmd_kick(Client* client, mssg& msg)
         }
         else
         {
-            client->set_write_buffer("441 " + client->get_nickname() + " " + target_nickname + " " + current_channel_name + " :They aren't on that channel\r\n");
+            client->set_write_buffer(":localhost 441 " + client->get_nickname() + " " + target_nickname + " " + current_channel_name + " :They aren't on that channel\r\n");
         }
     }
 }

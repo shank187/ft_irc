@@ -1,17 +1,15 @@
 #include "../Core.hpp"
 
-
-
 void Core::cmd_mode(Client* client, mssg& msg)
 {
     if (msg.args.empty())
     {
-        client->set_write_buffer("461 " + client->get_nickname() + " MODE :Not enough parameters\r\n");
+        client->set_write_buffer(":localhost 461 " + client->get_nickname() + " MODE :Not enough parameters\r\n");
         return ;
     }
     if (msg.args[0].empty())
     {
-        client->set_write_buffer("461 " + client->get_nickname() + " MODE :Not enough parameters\r\n");
+        client->set_write_buffer(":localhost 461 " + client->get_nickname() + " MODE :Not enough parameters\r\n");
         return;
     }
     std::string target_channel = msg.args[0];
@@ -20,11 +18,11 @@ void Core::cmd_mode(Client* client, mssg& msg)
     {
         if (target_channel == client->get_nickname())
         {
-            client->set_write_buffer("221 " + client->get_nickname() + " +i\r\n"); 
+            client->set_write_buffer(":localhost 221 " + client->get_nickname() + " +i\r\n"); 
             return; 
         } 
         else {
-            client->set_write_buffer("502 " + client->get_nickname() + " :Cant change mode for other users\r\n");
+            client->set_write_buffer(":localhost 502 " + client->get_nickname() + " :Cant change mode for other users\r\n");
             return;
         }
     }
@@ -35,22 +33,21 @@ void Core::cmd_mode(Client* client, mssg& msg)
         if (msg.args.size() == 1)//read mode in this chanel
         {
             std::string current_modes = it->second->get_modes();
-            client->set_write_buffer("324 " + client->get_nickname() + " " + target_channel + " " + current_modes + "\r\n");
+            client->set_write_buffer(":localhost 324 " + client->get_nickname() + " " + target_channel + " " + current_modes + "\r\n");
             return ;
         }
         if (msg.args.size() >= 2 && (msg.args[1] == "b" || msg.args[1] == "+b")) 
         {
-            client->set_write_buffer("368 " + client->get_nickname() + " " + target_channel + " :End of channel ban list\r\n");
+            client->set_write_buffer(":localhost 368 " + client->get_nickname() + " " + target_channel + " :End of channel ban list\r\n");
             return;
         }
         //set mode!!!!!!!!!!1
         
         if (!it->second->is_operator(client))
         {
-            client->set_write_buffer("482 " + client->get_nickname() + " " + target_channel + " :You're not channel operator\r\n");
+            client->set_write_buffer(":localhost 482 " + client->get_nickname() + " " + target_channel + " :You're not channel operator\r\n");
             return ;
         }
-
 
         std::string mode_str = msg.args[1];
         bool add = true;
@@ -92,7 +89,7 @@ void Core::cmd_mode(Client* client, mssg& msg)
                     param_count++;
 
                     if (!it->second->get_password().empty()) {
-                        client->set_write_buffer("467 " + client->get_nickname() + " " + target_channel + " :Channel key already set\r\n");
+                        client->set_write_buffer(":localhost 467 " + client->get_nickname() + " " + target_channel + " :Channel key already set\r\n");
                     } else {
                         it->second->set_password(msg.args[arg_idx]);
                         applied_modes += "k";
@@ -152,9 +149,9 @@ void Core::cmd_mode(Client* client, mssg& msg)
                     }
 
                     if (!target_client)
-                        client->set_write_buffer("401 " + client->get_nickname() + " " + target_nick + " :No such nick/channel\r\n");
+                        client->set_write_buffer(":localhost 401 " + client->get_nickname() + " " + target_nick + " :No such nick/channel\r\n");
                     else if (!it->second->is_member(target_client))
-                        client->set_write_buffer("441 " + client->get_nickname() + " " + target_nick + " " + target_channel + " :They aren't on that channel\r\n");
+                        client->set_write_buffer(":localhost 441 " + client->get_nickname() + " " + target_nick + " " + target_channel + " :They aren't on that channel\r\n");
                     else
                     {
                         if (add)
@@ -168,7 +165,7 @@ void Core::cmd_mode(Client* client, mssg& msg)
                 }
             }
             else
-                client->set_write_buffer("472 " + client->get_nickname() + " " + c + " :is unknown mode char to me\r\n");
+                client->set_write_buffer(":localhost 472 " + client->get_nickname() + " " + c + " :is unknown mode char to me\r\n");
         }
 
         if (!applied_modes.empty() && applied_modes != "+" && applied_modes != "-")
@@ -179,6 +176,6 @@ void Core::cmd_mode(Client* client, mssg& msg)
     } 
     else
     {
-        client->set_write_buffer("403 " + client->get_nickname() + " " + target_channel + " :No such channel\r\n");
+        client->set_write_buffer(":localhost 403 " + client->get_nickname() + " " + target_channel + " :No such channel\r\n");
     }
 }
