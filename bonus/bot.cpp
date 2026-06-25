@@ -27,7 +27,7 @@ int main(int ac, char **av) {
         return (std::cerr << "Error: Socket creation failed!\n", 1);
 
     struct sockaddr_in server_addr;
-    memset(&server_addr, 0, sizeof(server_addr));
+    std::memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(std::atoi(av[2]));
     server_addr.sin_addr.s_addr = inet_addr(av[1]);
@@ -43,7 +43,7 @@ int main(int ac, char **av) {
     char buf[1024];
     while (1)
     {
-        memset(buf, 0, sizeof(buf));
+        std::memset(buf, 0, sizeof(buf));
         if (recv(sock, buf, 1023, 0) <= 0)
             break;
 
