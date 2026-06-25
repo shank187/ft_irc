@@ -20,9 +20,7 @@ Server::Server(int port, const std::string & password) : _port(port), _pw(passwo
 Server::~Server() {
     if (_dummy_fd != -1) {
         close(_dummy_fd);
-    }
-    if (_server_fd != -1) {
-        close(_server_fd);
+        _dummy_fd = -1;
     }
     for (size_t i = 0; i < _fds.size(); i++) {
         close(_fds[i].fd);
@@ -262,9 +260,6 @@ void Server::run()
                 send_message(i);
             }
         }
-    }
-    for (size_t i = 0; i < _fds.size(); i++) {
-        close(_fds[i].fd);
     }
     std::cout << GREEN << "All connections closed... \n"<< YELLOW << "Server shutting down." << RESET <<std::endl;
 }
