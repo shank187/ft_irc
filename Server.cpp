@@ -37,9 +37,15 @@ void Server::init()
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(_port);
     if(bind(_server_fd, (struct sockaddr *) &address, sizeof(address)) == -1)
+    {
+        close(_server_fd);
         throw (std::runtime_error("failed to bind to port."));
+    }
     if(listen(_server_fd, SOMAXCONN) == -1)
+    {
+        close(_server_fd);
         throw (std::runtime_error("failed to listen."));
+    }
     std::cout << GREEN << "Success! The server is listening on port " << _port << RESET << std::endl;
     struct pollfd server_pollfd;
     server_pollfd.fd = _server_fd;
