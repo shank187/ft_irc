@@ -303,7 +303,7 @@ std::vector<std::string> Core::split(const std::string& s, char delimiter)
 bool Core::is_valid_channel_name(const std::string& name)
 {
 
-    if (name.empty() || name.length() > 50 || (name[0] != '#' && name[0] != '&'))
+    if (name.empty() || name.length() > 50 || name.length() < 2 || (name[0] != '#' && name[0] != '&'))
         return false;
         
     for (size_t i = 0; i < name.length(); ++i)
