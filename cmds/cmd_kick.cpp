@@ -48,7 +48,7 @@ void Core::cmd_kick(Client* client, mssg& msg)
             continue;
         }
 
-        if (!channel->is_operator(client) && target_nickname != client->get_nickname())
+        if (!channel->is_operator(client))
         {
             client->set_write_buffer(":localhost 482 " + client->get_nickname() + " " + current_channel_name + " :You're not channel operator\r\n");
             continue;

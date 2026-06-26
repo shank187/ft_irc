@@ -99,11 +99,14 @@ void Core::cmd_mode(Client* client, mssg& msg)
                 }
                 else if (!add)
                 {
-                    it->second->set_password("");
-                    applied_modes += "k";
                     if (arg_idx < msg.args.size())
                     {
-                        applied_args += " " + msg.args[arg_idx];
+                        if (msg.args[arg_idx] == it->second->get_password())
+                        {
+                            it->second->set_password("");
+                            applied_modes += "k";
+                            applied_args += " " + msg.args[arg_idx];
+                        }
                         arg_idx++;
                     }
                 }
