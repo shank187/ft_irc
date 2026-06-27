@@ -47,7 +47,7 @@ clean:
 	@printf "\033[33m[CLEAN] Object files removed.\033[0m\n"
 
 fclean: clean
-	$(RM) $(NAME)
+	$(RM) $(NAME) $(RM) $(BOT_NAME)
 	@printf "\033[31m[FCLEAN] Executable removed.\033[0m\n"
 re: fclean all
 

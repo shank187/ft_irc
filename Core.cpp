@@ -119,6 +119,7 @@ void Core::cmd_quit(Client* client, mssg& msg)
     broadcast_global(client, quit_msg, false);
 
     std::cout << YELLOW << "[Server] Client FD " << client->get_fd() << " issued QUIT (" << reason << ")" << RESET << std::endl;
+    client->set_disconnect_pending(true);
 }
 
 void Core::cmd_pass(Client *client, mssg& msg)

@@ -84,9 +84,9 @@ void Server::_acceptNewClient()
     }
 }
 
-bool Server::_handleClientMessage(int fd, char *buffer)
+bool Server::_handleClientMessage(int fd, char *buffer, int byte_received)
 {
-    _client_buffers[fd] += buffer;
+    _client_buffers[fd].append(buffer, byte_received);
     size_t pos;
 
     Client * client = _core.get_client(fd);
@@ -176,7 +176,7 @@ void Server::_checkForOutgoingMsg()
     }
 }
 
-void Server::send_message(size_t &i)
+void Server::send_message(size_t &i, bool &is_disconnected)
 {
     Client* client = _core.get_client(_fds[i].fd);
     if (client) 
@@ -188,9 +188,11 @@ void Server::send_message(size_t &i)
         if (client->get_write_buffer().empty() && client->get_disconnect_pending()) {
             std::cout << "Buffer empty. Executing deferred kick for FD " << _fds[i].fd << std::endl;
             _handleClientDisconnection(i);
+            is_disconnected = true;
         }
         } else if (bytes_sent <= 0) {
-                _handleClientDisconnection(i);
+            _handleClientDisconnection(i);
+            is_disconnected = true;
         }
     }
 }
@@ -215,12 +217,6 @@ void Server::run()
         for(size_t i = 0; i < _fds.size(); i++)
         {
             bool is_disconnected = false;
-            if (_fds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
-            {
-                std::cout << YELLOW << "Client FD " << _fds[i].fd << " hung up or encountered an error." << RESET << std::endl;
-                _handleClientDisconnection(i);
-                continue;
-            }
             if(_fds[i].revents & POLLIN)
             {
                 if(_fds[i].fd == _server_fd)
@@ -234,18 +230,24 @@ void Server::run()
                         is_disconnected = true;
                         _handleClientDisconnection(i);
                     }
-                    else if (!_handleClientMessage(_fds[i].fd, buffer))
+                    else if (!_handleClientMessage(_fds[i].fd, buffer, byte_received))
                     {
                         is_disconnected = true;
                         _handleClientDisconnection(i);
                     }
                 }
             }
-            if(is_disconnected)
-                continue;
             if (_fds[i].revents & POLLOUT)
             {
-                send_message(i);
+                send_message(i, is_disconnected);
+            }
+            if(is_disconnected)
+                continue;
+            if (_fds[i].revents & (POLLERR | POLLHUP | POLLNVAL))
+            {
+                std::cout << YELLOW << "Client FD " << _fds[i].fd << " hung up or encountered an error." << RESET << std::endl;
+                _handleClientDisconnection(i);
+                continue;
             }
         }
     }

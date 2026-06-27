@@ -71,7 +71,7 @@ bool Core::process_input(int fd, std::string& text)
     if (parsed.cmd == "QUIT")
     {
         cmd_quit(client, parsed);
-        return false;
+        return true;
     }
     if(parsed.cmd == "CAP" || parsed.cmd == "WHOIS" || parsed.cmd == "WHO") return true;
     if(parsed.cmd == "PASS")

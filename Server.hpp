@@ -33,10 +33,10 @@ class Server {
         Core                        _core;
         
         void    _acceptNewClient();
-        bool    _handleClientMessage(int fd, char *buffer);
+        bool    _handleClientMessage(int fd, char *buffer, int byte_received);
         void    _handleClientDisconnection(size_t &i);
         void    _checkForOutgoingMsg();
-        void    send_message(size_t &i);
+        void    send_message(size_t &i, bool &);
         void    _checkPingTimeouts();
     public:
         static bool                 Signal;
