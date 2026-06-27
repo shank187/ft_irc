@@ -14,7 +14,7 @@ void Core::cmd_join(Client* client, mssg& msg) {
         {
             if (it->second->is_member(client))
             {
-                std::string part_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " PART " + it->first + " :Left all channels\r\n";
+                std::string part_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " PART " + it->first + " :Leave all currently joined channels.\r\n";
                 it->second->broadcast(part_msg, NULL);
 
                 it->second->remove_client(client);
