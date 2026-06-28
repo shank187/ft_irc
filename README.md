@@ -58,8 +58,43 @@ USER eval_user 0 * :Eval User
 
 ## Bonus (TimeBot)
 
-The project includes a simple IRC bot that connects to the server and responds to commands.
+The project includes a simple IRC bot that connects to the server and responds to commands.[cite: 3]
 ```bash
 ./bot 127.0.0.1 6667 mypassword123
 ```
-*Note: Send `!time` to the bot in a private message to get the current server time.*
+*Note: Send `!time` to the bot in a private message to get the current server time.*[cite: 3]
+
+### Testing the Bot
+
+The bot connects using the nickname **TimeBot**. You can request the current server time by sending it a private message containing the `!time` command.
+
+**Using irssi:**
+```text
+/msg TimeBot !time
+```
+
+**Using netcat:**
+```text
+PRIVMSG TimeBot :!time
+```
+
+## File Transfer (DCC)
+
+File transfers in IRC are handled via Direct Client-to-Client (DCC) protocol. The server's responsibility is to properly parse and relay the initial CTCP `PRIVMSG` handshake between the two clients. Once the handshake is relayed, the clients open a direct peer-to-peer connection to transfer the file.
+
+### Testing File Transfer
+
+To test this during evaluation, open two separate `irssi` instances connected to your server (e.g., `clientA` and `clientB`).
+
+**1. From the sender (clientA):**
+Initiate the file transfer using the `/dcc send` command, specifying the target nickname and the path to the file you want to send.
+```text
+/dcc send clientB /path/to/some/test_file.txt
+```
+
+**2. From the receiver (clientB):**
+The receiving client will get a notification about the incoming file. To accept and download it, use the `/dcc get` command.
+```text
+/dcc get clientA
+```
+*(Note: The downloaded file will typically be saved in the default `irssi` download directory, often `~/.irssi/` or the directory from which `irssi` was launched).*
