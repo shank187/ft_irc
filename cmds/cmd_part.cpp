@@ -24,6 +24,8 @@ void Core::cmd_part(Client* client, mssg& msg)
             if(it->second->is_member(client))
             {
                 std::string part_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " PART " + target + " :" + reason + "\r\n";
+                if (part_msg.length() > 512)
+                    continue;
                 it->second->broadcast(part_msg, client);
                 client->set_write_buffer(part_msg);
                 

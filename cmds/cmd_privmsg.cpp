@@ -40,10 +40,12 @@ void Core::cmd_privmsg(Client* client, mssg& msg)
                 }
 
                 std::string full_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " PRIVMSG " + target + " :" + text + "\r\n";
+                if (full_msg.length() > 512)
+                    continue;
                 it->second->broadcast(full_msg, client);
             } 
             else
-                client->set_write_buffer(":localhost 401 " + client->get_nickname() + " " + target + " :No such nick/channel\r\n");
+                client->set_write_buffer(":localhost 403 " + client->get_nickname() + " " + target + " :No such channel\r\n");
         }
         else 
         {
@@ -62,10 +64,12 @@ void Core::cmd_privmsg(Client* client, mssg& msg)
             if (target_client)
             {
                 std::string full_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " PRIVMSG " + target + " :" + text + "\r\n";
+                if (full_msg.length() > 512)
+                    continue;
                 target_client->set_write_buffer(full_msg);
             }
             else
-                client->set_write_buffer(":localhost 401 " + client->get_nickname() + " " + target + " :No such nick/channel\r\n");
+                client->set_write_buffer(":localhost 401 " + client->get_nickname() + " " + target + " :No such nick\r\n");
         }
     }
 }

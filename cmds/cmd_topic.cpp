@@ -37,15 +37,18 @@ void Core::cmd_topic(Client* client, mssg& msg)
                         it->second->set_topic("");
 
                         std::string topic_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " TOPIC " + target_channel + " :\r\n";
+                        if (topic_msg.length() > 512)
+                            return;
                         it->second->broadcast(topic_msg, NULL);
                     }
                     else
                     {
                         std::string new_topic = msg.args[1];
+                        std::string topic_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " TOPIC " + target_channel + " :" + new_topic + "\r\n";
+                        if (topic_msg.length() > 512)
+                            return;
 
                         it->second->set_topic(new_topic);
-
-                        std::string topic_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " TOPIC " + target_channel + " :" + new_topic + "\r\n";
                         it->second->broadcast(topic_msg, NULL);
                     }
                 }

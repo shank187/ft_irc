@@ -15,7 +15,8 @@ void Core::cmd_join(Client* client, mssg& msg) {
             if (it->second->is_member(client))
             {
                 std::string part_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " PART " + it->first + " :Leave all currently joined channels.\r\n";
-                it->second->broadcast(part_msg, NULL);
+                if (part_msg.length() <= 512)
+                    it->second->broadcast(part_msg, NULL);
 
                 it->second->remove_client(client);
                 if (it->second->is_operator(client))
@@ -44,7 +45,7 @@ void Core::cmd_join(Client* client, mssg& msg) {
     std::vector<std::string> keys;
     if (msg.args.size() > 1)
         keys = split(msg.args[1], ',');
-
+ 
     for (size_t i = 0; i < channels_to_join.size(); i++)
     {
         std::string chan_name = channels_to_join[i];
@@ -53,7 +54,7 @@ void Core::cmd_join(Client* client, mssg& msg) {
             client->set_write_buffer(":localhost 403 " + client->get_nickname() + " " + chan_name + " :No such channel\r\n");
             continue;
         }
-
+ 
         int current_channels = 0;
         std::map<std::string, Channel*>::iterator c_it;
         for (c_it = channels.begin(); c_it != channels.end(); ++c_it)
@@ -66,14 +67,15 @@ void Core::cmd_join(Client* client, mssg& msg) {
             client->set_write_buffer(":localhost 405 " + client->get_nickname() + " " + chan_name + " :You have joined too many channels\r\n");
             continue;
         }
-
+ 
         std::map<std::string, Channel*>::iterator it = channels.find(chan_name);
         Channel* channel;
-
+ 
         if (it == channels.end())
         {
             channel = new Channel(chan_name);
             channels[chan_name] = channel;
+            channel->add_client(client);
             channel->add_operator(client);
         }
         else
@@ -81,13 +83,13 @@ void Core::cmd_join(Client* client, mssg& msg) {
             channel = it->second;
             if (channel->is_member(client))
                 continue;
-
+ 
             if (channel->is_invite_only() && !channel->is_invited(client))
             {
                 client->set_write_buffer(":localhost 473 " + client->get_nickname() + " " + chan_name + " :Cannot join channel (+i)\r\n");
                 continue;
             }
-
+ 
             if (!channel->get_password().empty())
             {
                 std::string provided_pass = "";
@@ -100,28 +102,29 @@ void Core::cmd_join(Client* client, mssg& msg) {
                     continue;
                 }
             }
-
+ 
             if (channel->get_limit() != -1 && static_cast<int>(channel->get_members().size()) >= channel->get_limit())
             {
                 client->set_write_buffer(":localhost 471 " + client->get_nickname() + " " + chan_name + " :Cannot join channel (+l)\r\n");
                 continue;
             }
         }
-
-        channel->add_client(client);
+ 
+        if (!channel->is_member(client))
+            channel->add_client(client);
         
         if (channel->is_invited(client))
             channel->remove_invite(client);
     
         std::string join_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " JOIN :" + chan_name + "\r\n";
         channel->broadcast(join_msg, NULL);
-
+ 
         if (!channel->get_topic().empty())
             client->set_write_buffer(":localhost 332 " + client->get_nickname() + " " + chan_name + " :" + channel->get_topic() + "\r\n");
         else
             client->set_write_buffer(":localhost 331 " + client->get_nickname() + " " + chan_name + " :No topic is set\r\n");
-
-
+ 
+ 
         //chanel list numbers !!!!!!!!!!11
         std::string base_msg = ":localhost 353 " + client->get_nickname() + " = " + chan_name + " :";
         std::string names_list = "";
@@ -133,7 +136,7 @@ void Core::cmd_join(Client* client, mssg& msg) {
             if (channel->is_operator(members[j]))
                 current_nick += "@";
             current_nick += members[j]->get_nickname();
-
+ 
             if (base_msg.length() + names_list.length() + current_nick.length() + 1 > 510)
             {
                 client->set_write_buffer(base_msg + names_list + "\r\n");

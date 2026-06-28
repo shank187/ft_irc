@@ -12,7 +12,6 @@ void Core::cmd_kick(Client* client, mssg& msg)
     std::vector<std::string> target_channels = split(msg.args[0], ',');
     std::vector<std::string> targets = split(msg.args[1], ',');
 
-
     if (target_channels.size() != 1 && target_channels.size() != targets.size())
     {
         client->set_write_buffer(":localhost 461 " + client->get_nickname() + " KICK :Not enough parameters\r\n");
@@ -74,6 +73,8 @@ void Core::cmd_kick(Client* client, mssg& msg)
         if (channel->is_member(target_client))
         {
             std::string kick_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " KICK " + current_channel_name + " " + target_nickname + " :" + reason + "\r\n";
+            if (kick_msg.length() > 512)
+                continue;
             channel->broadcast(kick_msg, NULL);
 
             channel->remove_client(target_client);

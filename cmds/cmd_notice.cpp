@@ -22,6 +22,8 @@ void Core::cmd_notice(Client* client, mssg& msg)
             if (it != channels.end() && it->second->is_member(client))
             {
                 std::string full_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " NOTICE " + target + " :" + text + "\r\n";
+                if (full_msg.length() > 512)
+                    continue;
                 it->second->broadcast(full_msg, client);
             } 
         }
@@ -42,6 +44,8 @@ void Core::cmd_notice(Client* client, mssg& msg)
             if (target_client)
             {
                 std::string full_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " NOTICE " + target + " :" + text + "\r\n";
+                if (full_msg.length() > 512)
+                    continue;
                 target_client->set_write_buffer(full_msg);
             }
         }

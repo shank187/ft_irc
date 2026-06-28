@@ -42,11 +42,12 @@ void Core::cmd_invite(Client* client, mssg& msg)
                     client->set_write_buffer(":localhost 443 " + client->get_nickname() + " " + target_nickname + " " + target_channel + " :is already on channel\r\n");
                 else
                 {
-                    it->second->add_invite(target_client);
-                    
-                    client->set_write_buffer(":localhost 341 " + client->get_nickname() + " " + target_nickname + " " + target_channel + "\r\n");
-                    
                     std::string invite_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " INVITE " + target_nickname + " :" + target_channel + "\r\n";
+                    if (invite_msg.length() > 512)
+                        return;
+
+                    it->second->add_invite(target_client);
+                    client->set_write_buffer(":localhost 341 " + client->get_nickname() + " " + target_nickname + " " + target_channel + "\r\n");
                     target_client->set_write_buffer(invite_msg);
                 }
             }

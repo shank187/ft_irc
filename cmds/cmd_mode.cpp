@@ -31,11 +31,16 @@ void Core::cmd_mode(Client* client, mssg& msg)
 
     if (it != channels.end())
     {
-        if (msg.args.size() == 1) // read mode in this chanel
+        if (msg.args.size() == 1)
         {
+            if (!it->second->is_member(client))
+            {
+                client->set_write_buffer(":localhost 442 " + client->get_nickname() + " " + target_channel + " :You're not on that channel\r\n");
+                return;
+            }
             std::string current_modes = it->second->get_modes();
             client->set_write_buffer(":localhost 324 " + client->get_nickname() + " " + target_channel + " " + current_modes + "\r\n");
-            return ;
+            return;
         }
         if (msg.args.size() >= 2 && (msg.args[1] == "b" || msg.args[1] == "+b")) 
         {
@@ -43,7 +48,6 @@ void Core::cmd_mode(Client* client, mssg& msg)
             return;
         }
         
-        // set mode checks
         if (!it->second->is_operator(client))
         {
             client->set_write_buffer(":localhost 482 " + client->get_nickname() + " " + target_channel + " :You're not channel operator\r\n");
@@ -58,7 +62,6 @@ void Core::cmd_mode(Client* client, mssg& msg)
         std::string applied_modes = "";
         std::string applied_args = "";
         
- 
         char current_sign = '+';
         char last_appended_sign = '\0';
 
@@ -82,13 +85,19 @@ void Core::cmd_mode(Client* client, mssg& msg)
 
                 if (c == 'i')
                 {
-                    it->second->set_mode_i(add);
-                    mode_applied = true;
+                    if (it->second->is_invite_only() != add)
+                    {
+                        it->second->set_mode_i(add);
+                        mode_applied = true;
+                    }
                 }
                 else if (c == 't')
                 {
-                    it->second->set_mode_t(add);
-                    mode_applied = true;
+                    if (it->second->is_topic_restricted() != add)
+                    {
+                        it->second->set_mode_t(add);
+                        mode_applied = true;
+                    }
                 }
                 else if (c == 'k')
                 {
@@ -108,15 +117,10 @@ void Core::cmd_mode(Client* client, mssg& msg)
                     }
                     else if (!add)
                     {
-                        if (arg_idx < msg.args.size())
+                        if (!it->second->get_password().empty())
                         {
-                            if (msg.args[arg_idx] == it->second->get_password())
-                            {
-                                it->second->set_password("");
-                                applied_args += " " + msg.args[arg_idx];
-                                mode_applied = true;
-                            }
-                            arg_idx++;
+                            it->second->set_password("");
+                            mode_applied = true;
                         }
                     }
                 }
@@ -197,10 +201,11 @@ void Core::cmd_mode(Client* client, mssg& msg)
             }
         }
 
-
         if (!applied_modes.empty())
         {
             std::string mode_msg = ":" + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname() + " MODE " + target_channel + " " + applied_modes + applied_args + "\r\n";
+            if (mode_msg.length() > 512)
+                return;
             it->second->broadcast(mode_msg, NULL);
         }
     } 
