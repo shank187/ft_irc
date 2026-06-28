@@ -126,11 +126,15 @@ void Core::cmd_mode(Client* client, mssg& msg)
                     {
                         if (param_count >= 3) continue;
                         param_count++;
-
+                    
                         int limit = std::atoi(msg.args[arg_idx].c_str());
-                        it->second->set_limit(limit);
-                        applied_args += " " + msg.args[arg_idx];
-                        mode_applied = true;
+                        
+                        if (limit > 0)
+                        {
+                            it->second->set_limit(limit);
+                            applied_args += " " + msg.args[arg_idx];
+                            mode_applied = true;
+                        }
                         arg_idx++;
                     }
                     else if (!add)
