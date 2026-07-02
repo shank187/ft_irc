@@ -303,8 +303,8 @@ std::vector<std::string> Core::split(const std::string& s, char delimiter)
     {
         if (s[i] == delimiter)
         {
-            if (!token.empty())
-                tokens.push_back(token);
+
+            tokens.push_back(token);
             token.clear();
         }
         else

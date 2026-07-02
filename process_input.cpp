@@ -100,7 +100,7 @@ bool Core::process_input(int fd, std::string& text)
         else if (parsed.cmd == "PONG")
             cmd_pong(client, parsed);
         else if (!parsed.cmd.empty())
-            client->set_write_buffer("421 " + client->get_nickname() + " " + parsed.cmd + " :Unknown command\r\n");
+            client->set_write_buffer(":localhost 421 " + client->get_nickname() + " " + parsed.cmd + " :Unknown command\r\n");
     }
     else if(!parsed.cmd.empty() && parsed.cmd != "PASS" && parsed.cmd != "NICK" && parsed.cmd != "USER")
     {
