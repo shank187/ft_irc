@@ -90,7 +90,7 @@ void Core::broadcast_global(Client* sender, const std::string& message, bool inc
         {
             std::vector<Client*> members = it->second->get_members();
             for (size_t i = 0; i < members.size(); i++) {
-                if (members[i] != sender || include_sender == true)
+                if (members[i] != sender)
                     recipients.insert(members[i]);
             }
         }
