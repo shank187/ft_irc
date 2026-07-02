@@ -22,7 +22,7 @@ SRCS		= main.cpp \
 				cmds/cmd_mode.cpp\
 				cmds/cmd_part.cpp\
 				cmds/cmd_privmsg.cpp\
-				cmds/cmd_topic.cpp cmds/cmd_notice.cpp
+				cmds/cmd_topic.cpp
 
 OBJS		= $(SRCS:.cpp=.o)
 
