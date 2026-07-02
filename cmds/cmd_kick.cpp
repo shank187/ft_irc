@@ -18,7 +18,7 @@ void Core::cmd_kick(Client* client, mssg& msg)
         return;
     }
 
-    std::string reason = "kicked by admin :)";
+    std::string reason = client->get_nickname();
     if (msg.args.size() > 2)
         reason = msg.args[2];
     

@@ -104,8 +104,15 @@ bool Core::process_input(int fd, std::string& text)
     }
     else if(!parsed.cmd.empty() && parsed.cmd != "PASS" && parsed.cmd != "NICK" && parsed.cmd != "USER")
     {
-        std::cout << YELLOW<<"ignored cmd: " << RESET<< parsed.cmd << std::endl ;
-        client->set_write_buffer("451 :You have not registered\r\n");
+        std::cout << YELLOW << "ignored cmd: " << RESET << parsed.cmd << std::endl;
+
+        std::string target;
+        if (client->get_nickname().empty())
+            target = "*";
+        else
+            target = client->get_nickname();
+
+        client->set_write_buffer(":localhost 451 " + target + " :You have not registered\r\n");
     }
     return true; 
 }
