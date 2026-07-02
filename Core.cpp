@@ -187,7 +187,13 @@ void Core::cmd_nick(Client *client, mssg& msg)
 {
     if (!client->get_has_password())
     {
-        client->set_write_buffer("464 :Please provide the server password first (PASS <password>)\r\n");
+        std::string target;
+        if (client->get_nickname().empty())
+            target = "*";
+        else
+            target = client->get_nickname();
+
+        client->set_write_buffer(":localhost 464 " + target + " :Please provide the server password first (PASS <password>)\r\n");
         return;
     }
     std::string nick = client->get_nickname().empty() ? "*" : client->get_nickname();
@@ -233,7 +239,13 @@ void Core::cmd_user(Client *client, mssg& msg)
 {
     bool already_auth = client->get_is_auth();
     if (!client->get_has_password()) {
-        client->set_write_buffer("464 :Please provide the server password first (PASS <password>)\r\n");
+        std::string target;
+        if (client->get_nickname().empty())
+            target = "*";
+        else
+            target = client->get_nickname();
+
+        client->set_write_buffer(":localhost 464 " + target + " :Please provide the server password first (PASS <password>)\r\n");
         return;
     }
     if (client->get_is_auth()) 
@@ -269,10 +281,16 @@ void Core::cmd_ping(Client* client, mssg& msg)
     if (msg.args.empty())
     {
         // 409 ERR_NOORIGIN
-        client->set_write_buffer("409 " + client->get_nickname() + " :No origin specified\r\n");
+        std::string target;
+        if (client->get_nickname().empty())
+            target = "*";
+        else
+            target = client->get_nickname();
+
+        client->set_write_buffer(":localhost 409 " + target + " :No origin specified\r\n");
         return;
     }
-    client->set_write_buffer("PONG :" + msg.args[0] + "\r\n");
+    client->set_write_buffer(":localhost PONG localhost :" + msg.args[0] + "\r\n");
     std::cout << "[Core] PING received from " << client->get_nickname() << ". Sent PONG." << std::endl;
 }
 
