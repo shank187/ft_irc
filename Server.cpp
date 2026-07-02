@@ -237,6 +237,8 @@ void Server::run()
                     }
                 }
             }
+            if(is_disconnected)
+                continue;
             if (_fds[i].revents & POLLOUT)
             {
                 send_message(i, is_disconnected);
