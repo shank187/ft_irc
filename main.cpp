@@ -66,6 +66,7 @@ int main(int argc, char **argv)
 
     signal(SIGINT, sig_handler);
     signal(SIGQUIT, sig_handler);
+    signal(SIGPIPE, SIG_IGN);
     try {
         ircServer.init();
         ircServer.run();
